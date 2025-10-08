@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <title>Генератор лекарств</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: none;
+      padding: 20px;
+    }
+	h1 {
+      color: #1156F3;
+	  text-align: center;
+	  margin-top: -20px;
+	}
+	h3 {
+      color: #1156F3;
+	  margin-top: 10px;
+	  margin-bottom: 2px;
+	}
+    #output {
+      width: 100%;
+      height: 50px;
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .top-buttons, .med-buttons {
+      margin-bottom: 5px;
+    }
+    .line {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+    .btn {
+      margin-right: 5px;
+	  margin-top: 5px;
+      cursor: pointer;
+      background-color: #1fb1fd;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background-color: #2196F3;
+    }
+    .copied-msg {
+      color: #1156F3;
+      margin-left: 10px;
+      font-size: 0.9em;
+      display: none;
+    }
+	.container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0px;
+    }
+    .column {
+      flex: 1;
+      padding: 0px;
+    }
+  </style>
+</head>
+<body>
+<h1>Генератор записей о лекарствах</h1>
+  <textarea id="output" placeholder="Здесь будут появляться скомпонованные текста"></textarea>
+  <div class="top-buttons">
+    <button class="btn" onclick="clearField()">Очистить</button>
+    <button class="btn" onclick="copyField()">Скопировать всё</button>
+	<button class="btn" onclick="insertDate()">Вставить дату</button>
+    <span id="field-msg" class="copied-msg">+</span>
+  </div>
+<h3>Нейролептики для психозов</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Sol. Haloperidoli')">Sol. Haloperidoli</button>
+<button class="btn" onclick="insertText('Tab. Haloperidoli')">Tab. Haloperidoli</button>
+<button class="btn" onclick="insertText('Sol. Risperidoni')">Sol. Risperidoni</button>
+<button class="btn" onclick="insertText('Tab. Risperidoni')">Tab. Risperidoni</button>
+<button class="btn" onclick="insertText('Tab. Cyclodoli')">Tab. Cyclodoli</button>
+<button class="btn" onclick="insertText('Tab. Buronili')">Tab. Buronili</button>
+<button class="btn" onclick="insertText('Tab. Clozapini')">Tab. Clozapini</button>
+<button class="btn" onclick="insertText('Tab. Cisordinoli')">Tab. Cisordinoli</button>
+<button class="btn" onclick="insertText('Tab. Tisercini')">Tab. Tisercini</button>
+<button class="btn" onclick="insertText('Caps. Cariprazini')">Caps. Cariprazini</button>
+<button class="btn" onclick="insertText('Tab. Stelazini')">Tab. Stelazini</button>
+<button class="btn" onclick="insertText('Tab. Stelazini')">Tab. Chlorpromazini</button>
+</div>
+<h3>Транквилизаторы и снотворные</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Lorazepami')">Tab. Lorazepami</button>
+<button class="btn" onclick="insertText('Sol. Diazepami')">Sol. Diazepami</button>
+<button class="btn" onclick="insertText('Tab. Bromazepami')">Tab. Bromazepami</button>
+<button class="btn" onclick="insertText('Tab. Clonazepami')">Tab. Clonazepami</button>
+<button class="btn" onclick="insertText('Tab. Fenazepami')">Tab. Fenazepami</button>
+<button class="btn" onclick="insertText('Tab. Alprazolami')">Tab. Alprazolami</button>
+<button class="btn" onclick="insertText('Tab. Zopicloni')">Tab. Zopicloni</button>
+<button class="btn" onclick="insertText('Tab. Zolpidemi')">Tab. Zolpidemi</button>
+<button class="btn" onclick="insertText('Tab. Eszopicloni')">Tab. Eszopicloni</button>
+<button class="btn" onclick="insertText('Tab. Buspironi')">Tab. Buspironi</button>
+<button class="btn" onclick="insertText('Tab. Phenibuti')">Tab. Phenibuti</button>
+<button class="btn" onclick="insertText('Tab. Phenibuti')">Caps. Phenibuti</button>
+</div>
+<h3>Стабилизаторы настроения</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Carbamazepini')">Tab. Carbamazepini</button>
+<button class="btn" onclick="insertText('Tab. Lamotrigini')">Tab. Lamotrigini</button>
+<button class="btn" onclick="insertText('Tab. Oxcarbazepini')">Tab. Oxcarbazepini</button>
+<button class="btn" onclick="insertText('Tab. Depakini')">Tab. Depakini</button>
+<button class="btn" onclick="insertText('Caps. Gabapentini')">Caps. Gabapentini</button>
+</div>
+<h3>Нейролептики для сна и спокойствия</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Olanzapini')">Tab. Olanzapini</button>
+<button class="btn" onclick="insertText('Tab. Quetiapini')">Tab. Quetiapini</button>
+<button class="btn" onclick="insertText('Tab. Truxali')">Tab. Truxali</button>
+<button class="btn" onclick="insertText('Tab. Aripiprazoli')">Tab. Aripiprazoli</button>
+<button class="btn" onclick="insertText('Tab. Fluanxoli')">Tab. Fluanxoli</button>
+<button class="btn" onclick="insertText('Tab. Sulpiridi')">Tab. Sulpiridi</button>
+<button class="btn" onclick="insertText('Tab. Sulpiridi')">Tab. Amisulpiridi</button>
+</div>
+<h3>Антидепрессанты</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Citaloprami')">Tab. Citaloprami</button>
+<button class="btn" onclick="insertText('Tab. Escitaloprami')">Tab. Escitaloprami</button>
+<button class="btn" onclick="insertText('Tab. Fluoxetini')">Tab. Fluoxetini</button>
+<button class="btn" onclick="insertText('Caps. Fluoxetini')">Caps. Fluoxetini</button>
+<button class="btn" onclick="insertText('Tab. Fluvoxamini')">Tab. Fluvoxamini</button>
+<button class="btn" onclick="insertText('Tab. Paroxetini')">Tab. Paroxetini</button>
+<button class="btn" onclick="insertText('Tab. Sertralini')">Tab. Sertralini</button>
+<button class="btn" onclick="insertText('Tab. Venlafaxini')">Tab. Venlafaxini</button>
+<button class="btn" onclick="insertText('Tab. Vortioxetini')">Tab. Vortioxetini</button>
+<button class="btn" onclick="insertText('Tab. Coaxili')">Tab. Coaxili</button>
+<button class="btn" onclick="insertText('Tab. Mirtazapini')">Tab. Mirtazapini</button>
+<button class="btn" onclick="insertText('Tab. Trazodoni')">Tab. Trazodoni</button>
+<button class="btn" onclick="insertText('Tab. Agomelatini')">Tab. Agomelatini</button>
+<button class="btn" onclick="insertText('Tab. Bupropioni')">Tab. Bupropioni</button>
+<button class="btn" onclick="insertText('Tab. Clomipramini')">Tab. Clomipramini</button>
+<button class="btn" onclick="insertText('Tab. Amitriptylini')">Tab. Amitriptylini</button>
+<button class="btn" onclick="insertText('Tab. Nortriptylini')">Tab. Nortriptylini</button>
+</div>
+<h3>Соматика</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Ibuprofeni')">Tab. Ibuprofeni</button>
+<button class="btn" onclick="insertText('Tab. Paracetamoli')">Tab. Paracetamoli</button>
+<button class="btn" onclick="insertText('Tab. Ibuprofeni')">Tab. Diclofenaci</button>
+<button class="btn" onclick="insertText('Tab. Ibuprofeni')">Sol. Diclofenaci</button>
+<button class="btn" onclick="insertText('Caps. Omeprazoli')">Caps. Omeprazoli</button>
+<button class="btn" onclick="insertText('Tab. Doxicyclini')">Tab. Doxicyclini</button>
+<button class="btn" onclick="insertText('Tab. Ipidacrini')">Tab. Ipidacrini</button>
+<button class="btn" onclick="insertText('Tab. Drotaverini')">Tab. Drotaverini</button>
+<button class="btn" onclick="insertText('Pulv. Diasmectini')">Pulv. Diasmectini</button>
+<button class="btn" onclick="insertText('Tab. Nitrendipini')">Tab. Nitrendipini</button>
+<button class="btn" onclick="insertText('Tab. Sennae')">Tab. Sennae</button>
+<button class="btn" onclick="insertText('Tab. Captoprili')">Tab. Captoprili</button>
+<button class="btn" onclick="insertText('Tab. Perindoprili')">Tab. Perindoprili</button>
+<button class="btn" onclick="insertText('Tab. Enalaprili')">Tab. Enalaprili</button>
+<button class="btn" onclick="insertText('Tab. Indapamidi')">Tab. Indapamidi</button>
+</div>
+<h3>Депо</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Sol. Cisordinoi decanoatis 200 mg 1 amp. i/m')">Sol. Cisordinoi decanoatis 200 mg 1 amp. i/m</button>
+<button class="btn" onclick="insertText('Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m')">Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m</button>
+<button class="btn" onclick="insertText('Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m')">Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m</button>
+<button class="btn" onclick="insertText('Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m')">Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m</button>
+<button class="btn" onclick="insertTextMg('reizi 2 ned')">reizi 2 ned</button>
+<button class="btn" onclick="insertTextMg('reizi 3 ned')">reizi 3 ned</button>
+<button class="btn" onclick="insertTextMg('reizi 4 ned')">reizi 4 ned</button>
+</div>
+<h3>Для плегирования</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Ievadīt Sol. Cisordinol acutard 50 mg 1 ml i/m')">Ievadīt Sol. Cisordinol acutard 50 mg 1 ml i/m</button>
+<button class="btn" onclick="insertText('Ievadīt Sol. Cisordinol acutard 100 mg 2 ml i/m')">Ievadīt Sol. Cisordinol acutard 100 mg 2 ml i/m</button>
+<button class="btn" onclick="insertText('Ievadīt Sol. Chlorpromazini 50 mg 2 ml i/m')">Ievadīt Sol. Chlorpromazini 50 mg 2 ml i/mm</button>
+<button class="btn" onclick="insertText('Ievadīt Sol. Chlorpromazini 100 mg 4 ml i/m')">Ievadīt Sol. Chlorpromazini 100 mg 4 ml i/mm</button>
+</div>
+<h3>Для памяти</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Tab. Cavintoni')">Tab. Cavintoni</button>
+<button class="btn" onclick="insertText('Tab. Memantini')">Tab. Memantini</button>
+<button class="btn" onclick="insertText('Tab. Piracetami')">Tab. Piracetami</button>
+</div>
+<h3>Дозы</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertTextMg('0,5 mg')">0,5 mg</button>
+<button class="btn" onclick="insertTextMg('1 mg')">1 mg</button>
+<button class="btn" onclick="insertTextMg('1,5 mg')">1,5 mg</button>
+<button class="btn" onclick="insertTextMg('2 mg')">2 mg</button>
+<button class="btn" onclick="insertTextMg('2,5 mg')">2,5 mg</button>
+<button class="btn" onclick="insertTextMg('3 mg')">3 mg</button>
+<button class="btn" onclick="insertTextMg('5 mg')">5 mg</button>
+<button class="btn" onclick="insertTextMg('7,5 mg')">7,5 mg</button>
+<button class="btn" onclick="insertTextMg('10 mg')">10 mg</button>
+<button class="btn" onclick="insertTextMg('12,5 mg')">12,5 mg</button>
+<button class="btn" onclick="insertTextMg('15 mg')">15 mg</button>
+<button class="btn" onclick="insertTextMg('20 mg')">20 mg</button>
+<button class="btn" onclick="insertTextMg('25 mg')">25 mg</button>
+<button class="btn" onclick="insertTextMg('37,5 mg')">37,5 mg</button>
+<button class="btn" onclick="insertTextMg('50 mg')">50 mg</button>
+<button class="btn" onclick="insertTextMg('75 mg')">75 mg</button>
+<button class="btn" onclick="insertTextMg('100 mg')">100 mg</button>
+<button class="btn" onclick="insertTextMg('150 mg')">150 mg</button>
+<button class="btn" onclick="insertTextMg('200 mg')">200 mg</button>
+<button class="btn" onclick="insertTextMg('250 mg')">250 mg</button>
+<button class="btn" onclick="insertTextMg('300 mg')">300 mg</button>
+<button class="btn" onclick="insertTextMg('500 mg')">500 mg</button>
+<button class="btn" onclick="insertTextMg('600 mg')">600 mg</button>
+</div>
+<div class="med-buttons">
+<button class="btn" onclick="insertTextMg('0,2%')">0,2%</button>
+<button class="btn" onclick="insertTextMg('0,5%')">0,5%</button>
+<button class="btn" onclick="insertTextMg('1 ml')">1 ml</button>
+<button class="btn" onclick="insertTextMg('1,5 ml')">1,5 ml</button>
+<button class="btn" onclick="insertTextMg('2 ml')">2 ml</button>
+<button class="btn" onclick="insertTextMg('3 gtt')">3 gtt</button>
+<button class="btn" onclick="insertTextMg('5 gtt')">5 gtt</button>
+<button class="btn" onclick="insertTextMg('7 gtt')">7 gtt</button>
+<button class="btn" onclick="insertTextMg('10 gtt')">10 gtt</button>
+</div>
+<div class="med-buttons">
+<button class="btn" onclick="insertTextMg('R')">R</button>
+<button class="btn" onclick="insertTextMg('D')">D</button>
+<button class="btn" onclick="insertTextMg('V')">V</button>
+<button class="btn" onclick="insertTextMg('N')">N</button>
+<button class="btn" onclick="insertTextMg('×1')">×1</button>
+<button class="btn" onclick="insertTextMg('×2')">×2</button>
+<button class="btn" onclick="insertTextMg('×3')">×3</button>
+<button class="btn" onclick="insertTextMg('×4')">×4</button>
+<button class="btn" onclick="insertTextMg('→')">→</button>
+<button class="btn" onclick="insertTextMg('↗')">↗</button>
+<button class="btn" onclick="insertTextMg('↘')">↘</button>
+<button class="btn" onclick="insertTextMg('½')">½</button>
+<button class="btn" onclick="insertTextMg('⅓')">⅓</button>
+<button class="btn" onclick="insertTextMg('¼')">¼</button>
+<button class="btn" onclick="insertTextMg('⅔')">⅔</button>
+</div>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('pa 1/2 tab')">pa 1/2 tab</button>
+<button class="btn" onclick="insertText('pa 1/2 tab')">pa 1/3 tab</button>
+<button class="btn" onclick="insertText('pa 1/2 tab')">pa 2/3 tab</button>
+<button class="btn" onclick="insertText('pa 1 tab')">pa 1 tab</button>
+<button class="btn" onclick="insertText('pa 1,5 tab')">pa 1,5 tab</button>
+<button class="btn" onclick="insertText('pa 2 tab')">pa 2 tab</button>
+<button class="btn" onclick="insertTextMg('rītā')">rītā</button>
+<button class="btn" onclick="insertTextMg('pusdienās')">pusdienās</button>
+<button class="btn" onclick="insertTextMg('vakarā')">vakarā</button>
+<button class="btn" onclick="insertTextMg('uz nakti')">uz nakti</button>
+<button class="btn" onclick="insertTextMg('2 reizes dienā')">2 reizes dienā</button>
+<button class="btn" onclick="insertTextMg('3 reizes dienā')">3 reizes dienā</button>
+<button class="btn" onclick="insertTextMg('4 reizes dienā')">4 reizes dienā</button>
+</div>
+
+  <script>
+    function copyText(button, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const output = document.getElementById('output');
+        const current = output.value.trim();
+        output.value = current ? current + ' ' + text : text;
+
+        const msg = button.parentElement.querySelector('.copied-msg');
+        msg.style.display = 'inline';
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 1500);
+      }).catch(err => {
+        console.error('Ошибка при копировании:', err);
+      });
+    }
+
+    function clearField() {
+      document.getElementById('output').value = '';
+    }
+
+    function copyField() {
+      const field = document.getElementById('output');
+      if (field.value.trim() !== '') {
+        navigator.clipboard.writeText(field.value).then(() => {
+          const msg = document.getElementById('field-msg');
+          msg.style.display = 'inline';
+          setTimeout(() => {
+            msg.style.display = 'none';
+          }, 1500);
+        }).catch(err => {
+          console.error('Ошибка при копировании:', err);
+        });
+      }
+    }
+	
+	function insertDate() {
+      const output = document.getElementById('output');
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      const dateStr = dd + '.' + mm + '.' + yyyy;
+
+      const current = output.value.trim();
+      output.value = current ? current + ' ' + dateStr : dateStr;
+    }
+	
+	function insertText(text) {
+      const output = document.getElementById('output');
+      const current = output.value.trim();
+      output.value = current ? current + ', ' + text : text;
+    }
+	
+	function insertTextMg(text) {
+      const output = document.getElementById('output');
+      const current = output.value.trim();
+      output.value = current ? current + ' ' + text : text;
+    }
+  </script>
+
+</body>
+</html>
