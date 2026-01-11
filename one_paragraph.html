@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Много строк → один абзац</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: none; }
+    h1 { color: #1156F3; text-align: center; margin-top: -10px; }
+    textarea{
+      width: 100%;
+      min-height: 180px;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .out{
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      line-height: 1.5;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin: 10px 0; }
+    .btn{
+      cursor: pointer; background-color: #1fb1fd; color: white;
+      border: none; padding: 5px 10px; border-radius: 4px;
+      margin-right: 10px; margin-top: 5px;
+    }
+    .btn:hover{ background-color: #2196F3; }
+    .muted { color:#666; }
+  </style>
+</head>
+<body>
+
+<h1>Много строк → один абзац</h1>
+<div class="muted">
+  Каждую непустую строку склеиваем в один текст.  
+  Если строка не заканчивается знаком пунктуации — добавляем точку.
+</div>
+
+<div class="row">
+  <button class="btn" id="copyBtn" type="button">Скопировать результат</button>
+  <span class="muted" id="stat">—</span>
+</div>
+
+<textarea id="src" placeholder="Вставьте текст со множеством переносов строк..."></textarea>
+
+<div class="out" id="dst"></div>
+
+<script>
+  const src = document.getElementById("src");
+  const dst = document.getElementById("dst");
+  const stat = document.getElementById("stat");
+  const copyBtn = document.getElementById("copyBtn");
+
+  // Знаки, при которых точку НЕ добавляем
+  // УБРАНЫ: ), ], }
+  const END_PUNCT_RE = /[.,;:!?…»"'’]$/u;
+
+  function toOneParagraph(text) {
+    const lines = text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n");
+
+    const parts = [];
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+
+      if (!END_PUNCT_RE.test(line)) line += ".";
+      parts.push(line);
+    }
+
+    return parts.join(" ");
+  }
+
+  function recalc() {
+    const input = src.value || "";
+    if (!input.trim()) {
+      dst.textContent = "";
+      stat.textContent = "—";
+      return;
+    }
+
+    const outText = toOneParagraph(input);
+    dst.textContent = outText;
+
+    const linesCount = input
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n")
+      .filter(x => x.trim()).length;
+
+    stat.textContent = `Непустых строк: ${linesCount}, длина результата: ${outText.length}`;
+  }
+
+  src.addEventListener("input", recalc);
+  recalc();
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(dst.textContent || "");
+      stat.textContent = "Скопировано ✓";
+      setTimeout(recalc, 800);
+    } catch {
+      stat.textContent = "Не удалось скопировать (браузер запретил).";
+    }
+  });
+</script>
+
+</body>
+</html>

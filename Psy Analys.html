@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <title>Генератор анализов</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: none;
+      padding: 20px;
+    }
+	h1 {
+      color: #1156F3;
+	  text-align: center;
+	  margin-top: -20px;
+	}
+	h3 {
+      color: #1156F3;
+	  margin-bottom: 5px;
+	}
+    #output {
+      width: 100%;
+      height: 50px;
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    .top-buttons, .med-buttons {
+      margin-bottom: 20px;
+    }
+    .line {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+    .btn {
+      margin-right: 10px;
+	  margin-top: 3px;
+      cursor: pointer;
+      background-color: #1fb1fd;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background-color: #2196F3;
+    }
+    .copied-msg {
+      color: #1156F3;
+      margin-left: 10px;
+      font-size: 0.9em;
+      display: none;
+    }
+	.container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0px;
+    }
+    .column {
+      flex: 1;
+      padding: 0px;
+    }
+  </style>
+</head>
+<body>
+<h1>Генератор записей об анализах</h1>
+  <textarea id="output" placeholder="Здесь будут появляться скомпонованные текста"></textarea>
+  <div class="top-buttons">
+    <button class="btn" onclick="clearField()">Очистить</button>
+    <button class="btn" onclick="copyField()">Скопировать всё</button>
+	<button class="btn" onclick="insertDate()">Вставить дату</button>
+    <span id="field-msg" class="copied-msg">+</span>
+  </div>
+  
+<div class="container">
+<div class="column">
+<h3>ЭКГ</h3>
+<div class="line"><button class="btn" onclick="copyText(this, 'EKG:')">Вставить</button><span>EKG:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'EKG individuālas normas robežās.')">Вставить</button><span>EKG individuālas normas robežās.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'EKG norma.')">Вставить</button><span>EKG norma.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Mērena sinusa tahikardija 94/min.')">Вставить</button><span>Mērena sinusa tahikardija 94/min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Mērena sinusa bradikardija 59/min.')">Вставить</button><span>Mērena sinusa bradikardija 59/min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Nespecifiskas T zoba pārmaiņas.')">Вставить</button><span>Nespecifiskas T zoba pārmaiņas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Nespecifiskas ST-T segmenta izmaiņas.')">Вставить</button><span>Nespecifiskas ST-T segmenta izmaiņas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Pagarināts QT intervāls.')">Вставить</button><span>Pagarināts QT intervāls.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Mērenas kreisa kambara hipertrtofijas pazīmes.')">Вставить</button><span>Mērenas kreisa kambara hipertrtofijas pazīmes.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Hisa kūlīša lb kājiņas daļēji vadīšanas traucējumi.')">Вставить</button><span>Hisa kūlīša lb kājiņas daļēji vadīšanas traucējumi.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Hisa kūlīša lb zara iniciāli vadīšanas traucējumi.')">Вставить</button><span>Hisa kūlīša lb zara iniciāli vadīšanas traucējumi.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Hisa kūlīša lb zara blokāde.')">Вставить</button><span>Hisa kūlīša lb zara blokāde.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Hisa kūlīša kr priekšējā zara blokāde.')">Вставить</button><span>Hisa kūlīša kr priekšējā zara blokāde.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Reģistrājas biežas ventrikulāras ekstrasistoles.')">Вставить</button><span>Reģistrājas biežas ventrikulāras ekstrasistoles.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, '1 ventrikulāra ekstrasistole.')">Вставить</button><span>1 ventrikulāra ekstrasistole.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Biežas pāra tipa supraventrikulāras ekstrasistoles.')">Вставить</button><span>Biežas pāra tipa supraventrikulāras ekstrasistoles.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Biežas trigeminijas tipa supraventrikulāras ekstrasistoles.')">Вставить</button><span>Biežas trigeminijas tipa supraventrikulāras ekstrasistoles.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Supraventrikulāras ekstrasistoles.')">Вставить</button><span>Supraventrikulāras ekstrasistoles.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Aizdomas par perēkļa izmaiņām ar Q apakšejā sienā.')">Вставить</button><span>Aizdomas par perēkļa izmaiņām ar Q apakšejā sienā.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Pagarināts QT intervals.')">Вставить</button><span>Pagarināts QT intervals.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Saīsināts PQ intervals.')">Вставить</button><span>Saīsināts PQ intervals.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Kambaru agrīnas repolarizācijas sy.')">Вставить</button><span>Kambaru agrīnas repolarizācijas sy.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Rētainas izmaiņas ar Q priekšējā-septalajā sienā.')">Вставить</button><span>Rētainas izmaiņas ar Q priekšējā-septalajā sienā.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Mirdzaritmija, normostēniska forma, vidēji 68/min.')">Вставить</button><span>Mirdzaritmija, normostēniska forma, vidēji 68/min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Mirdzaritmijas tahisistoliska forma, vidēji 69/min.')">Вставить</button><span>Mirdzaritmijas tahisistoliska forma, vidēji 69/min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Perēkļainas izmaiņas bez Q visā priekšējā sienā.')">Вставить</button><span>Perēkļainas izmaiņas bez Q visā priekšējā sienā.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Tendence uz ST segmenta pacēlumu V1-V6 novadījumos, saplacināti T zobi visos novadījumos.')">Вставить</button><span>Tendence uz ST segmenta pacēlumu V1-V6 novadījumos, saplacināti T zobi visos novadījumos.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Regulārs EKS ritms 65 x min.')">Вставить</button><span>Regulārs EKS ritms 65 x min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Abu kambaru stimulācija.')">Вставить</button><span>Abu kambaru stimulācija.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Apakšējais priekškambaru ritms 64 x/min.')">Вставить</button><span>Apakšējais priekškambaru ritms 64 x/min.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Kontrole pie koronārās klīnikas.')">Вставить</button><span>Kontrole pie koronārās klīnikas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Kontrole pēc klīnikas.')">Вставить</button><span>Kontrole pēc klīnikas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, ', citādi individuālas normas robežās.')">Вставить</button><span>, citādi individuālas normas robežās.</span><span class="copied-msg">+</span></div>
+<h3>ЭЭГ</h3>
+<div class="line"><button class="btn" onclick="copyText(this, 'EEG:')">Вставить</button><span>EEG:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Ar mērēnām vispārējām izmaiņām dezorganizētās, nedaudz pazeminātās amplitūdas alfa, beta, teta aktivitātes veidā.')">Вставить</button><span>Ar mērēnām vispārējām izmaiņām dezorganizētās, nedaudz pazeminātās amplitūdas alfa, beta, teta aktivitātes veidā.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Polimorfu viļņu paroksizmiem ar fokusu virs CPOT rajoniem, tikai virs monopolāriem novadījumiem.')">Вставить</button><span>Polimorfu viļņu paroksizmiem ar fokusu virs CPOT rajoniem, tikai virs monopolāriem novadījumiem.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Fokālas izmaiņas in tipisku epileptiformu aktivitāti nekonstatē.')">Вставить</button><span>Fokālas izmaiņas in tipisku epileptiformu aktivitāti nekonstatē.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Nelielas izmaiņas no centrencefalītiskajām stuktūrām.')">Вставить</button><span>Nelielas izmaiņas no centrencefalītiskajām stuktūrām.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Paroksizmālas, fokālas un epileptiformas izmaiņas nereģistrējas.')">Вставить</button><span>Paroksizmālas, fokālas un epileptiformas izmaiņas nereģistrējas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, ', daļēji reducētu alfa, difūzu ātru beta, lēzenu teta aktivitāti.')">Вставить</button><span>, daļēji reducētu alfa, difūzu ātru beta, lēzenu teta aktivitāti.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Hiperventilācijas ietekmē brīžiem tendence uz epi kompleksu veidošanos virs pakauša rajoniem, izteiktāk labā pusē.')">Вставить</button><span>Hiperventilācijas ietekmē brīžiem tendence uz epi kompleksu veidošanos virs pakauša rajoniem, izteiktāk labā pusē.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Paroksizmu laikā, brīžiem ārpus tiem tendence vai vienā epizodē pēc fotostimulācijas veidojas atipiski epi kompleksi virs lb deniņa rajona, izteiktāk mugurējās daļās.')">Вставить</button><span>Paroksizmu laikā, brīžiem ārpus tiem tendence vai vienā epizodē pēc fotostimulācijas veidojas atipiski epi kompleksi virs lb deniņa rajona, izteiktāk mugurējās daļās.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Ģeneralizēta epileptiforma aktivitāte nereģistrējas.')">Вставить</button><span>Ģeneralizēta epileptiforma aktivitāte nereģistrējas.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Difūziem asiem potenciāļiem.')">Вставить</button><span>Difūziem asiem potenciāļiem.</span><span class="copied-msg">+</span></div>
+</div>
+<div class="column">
+<h3>Анализы</h3>
+<div class="line"><button class="btn" onclick="copyText(this, 'Pilna asins aina, bioķīmija:')">Вставить</button><span>Pilna asins aina, bioķīmija:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'WBC 3.89*10^3/ul, RBC 3,11*10^6/ul, Hgb 11.10 g/dl, Hct 31,3%, MCV 100,6 fl, MCH 35,7 pg, MCHC 36,7 g/dl, Ery sadales plašuma novirze 52,1 fl, Plt 144*10^3/ul, PDW 11%, Lym 1,4*10^3/ul, EGĀ 26 mm/h, glikoze =N, kop. bilirubīns 38,7 mkmol/l, tieš. bilirubīns 11,2 mkmol/l, ALAT 99 U/l, ASAT 69 U/l, kreatinīns 45,7 mkmol/l, urea 2,6 mmol/l, CRO 5,9 mg/l, GFĀ 40 ml/min/1,73m^2,')">Вставить</button><span>WBC 3.89*10^3/ul, RBC 3,11*10^6/ul, Hgb 11.10 g/dl, Hct 31,3%, MCV 100,6 fl, MCH 35,7 pg, MCHC 36,7 g/dl, Ery sadales plašuma novirze 52,1 fl, Plt 144*10^3/ul, PDW 11%, Lym 1,4*10^3/ul, EGĀ 26 mm/h, glikoze =N, kop. bilirubīns 38,7 mkmol/l, tieš. bilirubīns 11,2 mkmol/l, ALAT 99 U/l, ASAT 69 U/l, kreatinīns 45,7 mkmol/l, urea 2,6 mmol/l, CRO 5,9 mg/l, GFĀ 40 ml/min/1,73m^2,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Vit B12 =N, AntiHCV Ag negatīvs, CRO 94,13 mg/l, AntiHIV Ag negatīvs, Prosatatas specifiskais Ag =N, Ferritīns 514,02 mkg/l,')">Вставить</button><span>Vit B12 =N, AntiHCV Ag negatīvs, CRO 94,13 mg/l, AntiHIV Ag negatīvs, Prosatatas specifiskais Ag =N, Ferritīns 514,02 mkg/l,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Vit B12 2725 pmol/l, Kop. Obv 62 g/l, Fe 10,9 mkmol/l, CRO 35,74 mg/l, Ferritīns 533,11 mkg/l,')">Вставить</button><span>Vit B12 2725 pmol/l, Kop. Obv 62 g/l, Fe 10,9 mkmol/l, CRO 35,74 mg/l, Ferritīns 533,11 mkg/l,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'RBC 4.26×10¹²/L, HGB 13.8 g/dL, HCT 41.6 %, MCV 98.4 fL, MCH 34.7 pg, MCHC 35.3 g/dL, RDW 12.7 %, WBC 7.52×10⁹/L, PLT 172×10⁹/L, NEUT 3.58×10⁹/L, LYMPH 3.75×10⁹/L, MONO 0.42×10⁹/L, EOS 0.26×10⁹/L, BASO 0.05×10⁹/L, EGĀ 2 mm/h, kop. BIL 6.78 µmol/L, tieš. BIL 3.27 µmol/L, ALAT 28 U/L, ASAT 31 U/L, GGT 62 U/L, CREA 67.1 µmol/L, GFĀ 108 mL/min/1.73m², Glik. 4.06 mmol/L, CRO 0.87 mg/L, Na 131.6 mmol/L, K 4.4 mmol/L, RPR negatīvs,')">Вставить</button><span>RBC 4.26×10¹²/L, HGB 13.8 g/dL, HCT 41.6 %, MCV 98.4 fL, MCH 34.7 pg, MCHC 35.3 g/dL, RDW 12.7 %, WBC 7.52×10⁹/L, PLT 172×10⁹/L, NEUT 3.58×10⁹/L, LYMPH 3.75×10⁹/L, MONO 0.42×10⁹/L, EOS 0.26×10⁹/L, BASO 0.05×10⁹/L, EGĀ 2 mm/h, kop. BIL 6.78 µmol/L, tieš. BIL 3.27 µmol/L, ALAT 28 U/L, ASAT 31 U/L, GGT 62 U/L, CREA 67.1 µmol/L, GFĀ 108 mL/min/1.73m², Glik. 4.06 mmol/L, CRO 0.87 mg/L, Na 131.6 mmol/L, K 4.4 mmol/L, RPR negatīvs,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'pārējais bez izmaiņām.')">Вставить</button><span>pārējais bez izmaiņām.</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Urīna analīze:')">Вставить</button><span>Urīna analīze:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'krāsa tumši dzeltena, īpat. svars 1,027, pH = 7,5, Leu 500/mkl, nitrīti pozitīvi, Obv <0,3 g/l, ketonvielas <1,5 mmol/l, bilirubīns nedaudz paaugstināts, Ery <25/mkl, urobilinogēns 70 mkmol/l,')">Вставить</button><span>krāsa tumši dzeltena, īpat. svars 1,027, pH = 7,5, Leu 500/mkl, nitrīti pozitīvi, Obv <0,3 g/l, ketonvielas <1,5 mmol/l, bilirubīns nedaudz paaugstināts, Ery <25/mkl, urobilinogēns 70 mkmol/l,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'īpatnējais svars 1.021, pH 5.0, glikoze norma, olbaltums negatīvs, ketonvielas negatīvs, nitrīti negatīvs, eritrocīti negatīvs, leikocīti negatīvs, urobilinogēns 35.0 µmol/L, bilirubīns negatīvs, krāsa dzeltena, dzidrums dzidrs')">Вставить</button><span>īpatnējais svars 1.021, pH 5.0, glikoze norma, olbaltums negatīvs, ketonvielas negatīvs, nitrīti negatīvs, eritrocīti negatīvs, leikocīti negatīvs, urobilinogēns 35.0 µmol/L, bilirubīns negatīvs, krāsa dzeltena, dzidrums dzidrs</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'Urīna sedimenta mikroskopija:')">Вставить</button><span>Urīna sedimenta mikroskopija:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'eritrocīti 0/µL, leikocīti 0/µL, plakanais epitēlijs nav atrasts, pārejas epitēlijs nav atrasts, sēnītes nav atrastas, kristāli nav atrasti, baktērijas nav atrastas, hialīnie cilindri nav atrasti, gļotas atrastas')">Вставить</button><span>eritrocīti 0/µL, leikocīti 0/µL, plakanais epitēlijs nav atrasts, pārejas epitēlijs nav atrasts, sēnītes nav atrastas, kristāli nav atrasti, baktērijas nav atrastas, hialīnie cilindri nav atrasti, gļotas atrastas</span><span class="copied-msg">+</span></div>
+<h3>Токсикология</h3>
+<div class="line"><button class="btn" onclick="copyText(this, 'ANPREN:')">Вставить</button><span>ANPREN:</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'atrasts -')">Вставить</button><span>atrasts -</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'nav atrasts -')">Вставить</button><span>nav atrasts -</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'LSD grupas zīmes,')">Вставить</button><span>LSD grupas zīmes,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'MDMA,')">Вставить</button><span>MDMA,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'THC skābe,')">Вставить</button><span>THC skābe,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'amfetamīna atvasinājumi,')">Вставить</button><span>amfetamīna atvasinājumi,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'benzilpiperazīni,')">Вставить</button><span>benzilpiperazīni,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'buprenorfīns,')">Вставить</button><span>buprenorfīns,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'etilspirts,')">Вставить</button><span>etilspirts,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'fenilpiperazīni,')">Вставить</button><span>fenilpiperazīni,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'hašiša (marihuānas) kanabinoīdi,')">Вставить</button><span>hašiša (marihuānas) kanabinoīdi,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'kokaīns,')">Вставить</button><span>kokaīns,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'meskalīns,')">Вставить</button><span>meskalīns,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'metadons,')">Вставить</button><span>metadons,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'opija alkaloīdi,')">Вставить</button><span>opija alkaloīdi,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'salvinorīns,')">Вставить</button><span>salvinorīns,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'sintētiskie kanabinoīdi,')">Вставить</button><span>sintētiskie kanabinoīdi,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'sintētiskie katinoni,')">Вставить</button><span>sintētiskie katinoni,</span><span class="copied-msg">+</span></div>
+<div class="line"><button class="btn" onclick="copyText(this, 'tramadols,')">Вставить</button><span>tramadols,</span><span class="copied-msg">+</span></div>
+</div>
+<div class="column">
+
+</div>
+</div>
+
+  <script>
+    function copyText(button, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const output = document.getElementById('output');
+        const current = output.value.trim();
+        output.value = current ? current + ' ' + text : text;
+
+        const msg = button.parentElement.querySelector('.copied-msg');
+        msg.style.display = 'inline';
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 1500);
+      }).catch(err => {
+        console.error('Kļūda kopējot tekstu:', err);
+      });
+    }
+
+    function clearField() {
+      document.getElementById('output').value = '';
+    }
+
+    function copyField() {
+      const field = document.getElementById('output');
+      if (field.value.trim() !== '') {
+        navigator.clipboard.writeText(field.value).then(() => {
+          const msg = document.getElementById('field-msg');
+          msg.style.display = 'inline';
+          setTimeout(() => {
+            msg.style.display = 'none';
+          }, 1500);
+        }).catch(err => {
+          console.error('Kļūda kopējot lauku:', err);
+        });
+      }
+    }
+	
+	function insertDate() {
+      const output = document.getElementById('output');
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      const dateStr = dd + '.' + mm + '.' + yyyy;
+
+      const current = output.value.trim();
+      output.value = current ? current + ' ' + dateStr : dateStr;
+    }
+	
+	function insertText(text) {
+      const output = document.getElementById('output');
+      const current = output.value.trim();
+      output.value = current ? current + ', ' + text : text;
+    }
+	
+	function insertTextMg(text) {
+      const output = document.getElementById('output');
+      const current = output.value.trim();
+      output.value = current ? current + ' ' + text : text;
+    }
+  </script>
+
+</body>
+</html>
