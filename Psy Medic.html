@@ -19,6 +19,7 @@
 	  margin-top: 10px;
 	  margin-bottom: 2px;
 	}
+	h4 {color: #1fb1fd; margin-top: 10px; margin-bottom: 2px; text-align: center; }
     #output {
       width: 100%;
       height: 50px;
@@ -80,6 +81,7 @@
 <h3>Для психозов</h3>
 <div class="med-buttons">
 <button class="btn" onclick="insertText('Sol. Haloperidoli')">Sol. Haloperidoli</button>
+<button class="btn" onclick="insertText('Sol. Haloperidoli 0,5%')">Sol. Haloperidoli 0,5%</button>
 <button class="btn" onclick="insertText('Tab. Haloperidoli')">Tab. Haloperidoli</button>
 <button class="btn" onclick="insertText('Sol. Risperidoni')">Sol. Risperidoni</button>
 <button class="btn" onclick="insertText('Tab. Risperidoni')">Tab. Risperidoni</button>
@@ -98,6 +100,7 @@
 <button class="btn" onclick="insertText('Sol. Lorazepami')">Sol. Lorazepami</button>
 <button class="btn" onclick="insertText('Tab. Lorazepami')">Tab. Lorazepami</button>
 <button class="btn" onclick="insertText('Sol. Diazepami')">Sol. Diazepami</button>
+<button class="btn" onclick="insertText('Sol. Diazepami 0,5%')">Sol. Diazepami 0,5%</button>
 <button class="btn" onclick="insertText('Tab. Diazepami')">Tab. Diazepami</button>
 <button class="btn" onclick="insertText('Tab. Bromazepami')">Tab. Bromazepami</button>
 <button class="btn" onclick="insertText('Tab. Clonazepami')">Tab. Clonazepami</button>
@@ -110,13 +113,15 @@
 <button class="btn" onclick="insertText('Tab. Phenibuti')">Tab. Phenibuti</button>
 <button class="btn" onclick="insertText('Caps. Phenibuti')">Caps. Phenibuti</button>
 </div>
-<h3>Стабилизаторы настроения</h3>
+<h3>Стабилизаторы настроения, атниконвульсанты</h3>
 <div class="med-buttons">
 <button class="btn" onclick="insertText('Tab. Carbamazepini')">Tab. Carbamazepini</button>
 <button class="btn" onclick="insertText('Tab. Lamotrigini')">Tab. Lamotrigini</button>
 <button class="btn" onclick="insertText('Tab. Oxcarbazepini')">Tab. Oxcarbazepini</button>
 <button class="btn" onclick="insertText('Tab. Depakini')">Tab. Depakini</button>
+<button class="btn" onclick="insertText('Tab. Topiramati')">Tab. Topiramati</button>
 <button class="btn" onclick="insertText('Caps. Gabapentini')">Caps. Gabapentini</button>
+<button class="btn" onclick="insertText('Caps. Pregabalini')">Caps. Pregabalini</button>
 </div>
 <h3>Для сна и спокойствия</h3>
 <div class="med-buttons">
@@ -128,6 +133,7 @@
 <button class="btn" onclick="insertText('Tab. Sulpiridi')">Tab. Sulpiridi</button>
 <button class="btn" onclick="insertText('Tab. Amisulpridi')">Tab. Amisulpridi</button>
 <button class="btn" onclick="insertText('Sol. Allergosani')">Sol. Allergosani</button>
+<button class="btn" onclick="insertText('Tab. Melatonini')">Tab. Melatonini</button>
 </div>
 <h3>Антидепрессанты</h3>
 <div class="med-buttons">
@@ -155,13 +161,19 @@
 <button class="btn" onclick="insertText('Tab. Ibuprofeni')">Tab. Ibuprofeni</button>
 <button class="btn" onclick="insertText('Tab. Paracetamoli')">Tab. Paracetamoli</button>
 <button class="btn" onclick="insertText('Tab. Diclofenaci')">Tab. Diclofenaci</button>
-<button class="btn" onclick="insertText('Tab. Diclofenaci')">Sol. Diclofenaci</button>
+<button class="btn" onclick="insertText('Sol. Diclofenaci')">Sol. Diclofenaci</button>
+<button class="btn" onclick="insertText('Tab. Aspirini')">Tab. Aspirini</button>
+<button class="btn" onclick="insertText('Tab. Analgini')">Tab. Analgini</button>
+<button class="btn" onclick="insertText('Tab. Metronidazoli')">Tab. Metronidazoli</button>
 <button class="btn" onclick="insertText('Caps. Omeprazoli')">Caps. Omeprazoli</button>
 <button class="btn" onclick="insertText('Tab. Doxicyclini')">Tab. Doxicyclini</button>
+<button class="btn" onclick="insertText('Tab. Amoxiclavi 875/125 mg')">Tab. Amoxiclavi 875/125 mg</button>
+<button class="btn" onclick="insertText('Tab. Clindamycini')">Tab. Clindamycini</button>
 <button class="btn" onclick="insertText('Tab. Ipidacrini')">Tab. Ipidacrini</button>
 <button class="btn" onclick="insertText('Tab. Drotaverini')">Tab. Drotaverini</button>
 <button class="btn" onclick="insertText('Pulv. Diasmectini')">Pulv. Diasmectini</button>
 <button class="btn" onclick="insertText('Tab. Sennae')">Tab. Sennae</button>
+<button class="btn" onclick="insertText('Tab. Bisacodyli')">Tab. Bisacodyli</button>
 <button class="btn" onclick="insertText('Tab. Nitrendipini')">Tab. Nitrendipini</button>
 <button class="btn" onclick="insertText('Tab. Captoprili')">Tab. Captoprili</button>
 <button class="btn" onclick="insertText('Tab. Perindoprili')">Tab. Perindoprili</button>
@@ -171,7 +183,11 @@
 <button class="btn" onclick="insertText('Tab. Bisoprololi')">Tab. Bisoprololi</button>
 <button class="btn" onclick="insertText('Tab. Metoprololi')">Tab. Metoprololi</button>
 <button class="btn" onclick="insertText('Tab. Nebivololi')">Tab. Nebivololi</button>
+<button class="btn" onclick="insertText('Tab. Propranololi')">Tab. Propranololi</button>
+<button class="btn" onclick="insertText('Tab. Atorvastatini')">Tab. Atorvastatini</button>
+<button class="btn" onclick="insertText('Tab. Rivaroxabani')">Tab. Rivaroxabani</button>
 <button class="btn" onclick="insertText('Tab. Tavegyli')">Tab. Tavegyli</button>
+<button class="btn" onclick="insertText('Tab. Metformini')">Tab. Metformini</button>
 </div>
 <h3>Системы</h3>
 <div class="med-buttons">
@@ -179,10 +195,16 @@
 <button class="btn" onclick="insertText('Sol. NaCl 0,9% 500 ml i/v')">Sol. NaCl 0,9% 500 ml i/v</button>
 <button class="btn" onclick="insertText('Sol. Ringeri 250 ml i/v')">Sol. Ringeri 250 ml i/v</button>
 <button class="btn" onclick="insertText('Sol. Ringeri 500 ml i/v')">Sol. Ringeri 500 ml i/v</button>
+<button class="btn" onclick="insertText('Sol. Magnesii sulphatis')">Sol. Magnesii sulphatis</button>
 </div>
+<h3>Наркология</h3>
+<button class="btn" onclick="insertText('Tab. Naltrexoni')">Tab. Naltrexoni</button>
+<button class="btn" onclick="insertText('Sol. Vit B1 80 mg')">Sol. Vit B1 80 mg</button>
+</div>
+<div class="med-buttons">
 <h3>Депо</h3>
 <div class="med-buttons">
-<button class="btn" onclick="insertText('Sol. Cisordinoi decanoatis 200 mg 1 amp. i/m')">Sol. Cisordinoi decanoatis 200 mg 1 amp. i/m</button>
+<button class="btn" onclick="insertText('Sol. Cisordinoli decanoatis 200 mg 1 amp. i/m')">Sol. Cisordinoli decanoatis 200 mg 1 amp. i/m</button>
 <button class="btn" onclick="insertText('Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m')">Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m</button>
 <button class="btn" onclick="insertText('Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m')">Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m</button>
 <button class="btn" onclick="insertText('Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m')">Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m</button>
@@ -237,6 +259,8 @@
 <button class="btn" onclick="insertTextMg('400 mg')">400 mg</button>
 <button class="btn" onclick="insertTextMg('500 mg')">500 mg</button>
 <button class="btn" onclick="insertTextMg('600 mg')">600 mg</button>
+<button class="btn" onclick="insertTextMg('850 mg')">850 mg</button>
+<button class="btn" onclick="insertTextMg('1000 mg')">1000 mg</button>
 </div>
 <div class="med-buttons">
 <button class="btn" onclick="insertTextMg('0,2%')">0,2%</button>
@@ -286,6 +310,7 @@
 </div>
 <div class="med-buttons">
 <button class="btn" onclick="insertTextMg('atcelt')">atcelt</button>
+<button class="btn" onclick="insertTextMg('pārējo atcelt')">pārējo atcelt</button>
 <button class="btn" onclick="insertTextMg('pievienot')">pievienot</button>
 <button class="btn" onclick="insertTextMg('iedot')">iedot</button>
 <button class="btn" onclick="insertTextMg('1 reizi')">1 reizi</button>
@@ -361,6 +386,6 @@
       output.value = current ? current + ' ' + text : text;
     }
   </script>
-
+<h4>05.04.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
 </body>
 </html>

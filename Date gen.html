@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Генератор дат по дням недели</title>
+  <style>
+    body { font-family: sans-serif; background: none; padding: 20px; }
+    h1 { color: #1156F3; text-align: center; margin-top: -10px; }
+    .form-group { margin-bottom: 10px; }
+    label { margin-right: 8px; }
+    input[type="date"]{
+      padding: 5px; font-size: 1em; margin-right: 10px;
+      border: 1px solid #ccc; border-radius: 4px;
+    }
+    .btn{
+      cursor: pointer; background-color: #1fb1fd; color: white;
+      border: none; padding: 5px 10px; border-radius: 4px;
+      margin-right: 10px; margin-top: 5px;
+    }
+    .btn:hover{ background-color: #2196F3; }
+    .out{
+      width: 100%; min-height: 220px; padding: 10px; font-size: 1em;
+      border: 1px solid #ccc; border-radius: 4px; background: #fff;
+      line-height: 1.5; white-space: pre-wrap; box-sizing: border-box;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .days {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 8px 0 12px;
+    }
+    .days label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: 0;
+    }
+    .muted { color: #666; }
+	h4 {color: #1fb1fd; margin-top: 10px; margin-bottom: 2px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<h1>Генератор дат по дням недели</h1>
+
+<div class="form-group row">
+  <label for="dateFrom">С даты:</label>
+  <input type="date" id="dateFrom" />
+
+  <label for="dateTo">По дату:</label>
+  <input type="date" id="dateTo" />
+
+  <button class="btn" type="button" id="todayBtn">Сегодня</button>
+  <button class="btn" type="button" id="generateBtn">Сгенерировать</button>
+  <button class="btn" type="button" id="copyBtn">Скопировать</button>
+</div>
+
+<div class="form-group">
+  <div class="muted">Выберите дни недели:</div>
+  <div class="days">
+    <label><input type="checkbox" value="1" /> Пн</label>
+    <label><input type="checkbox" value="2" /> Вт</label>
+    <label><input type="checkbox" value="3" /> Ср</label>
+    <label><input type="checkbox" value="4" /> Чт</label>
+    <label><input type="checkbox" value="5" /> Пт</label>
+    <label><input type="checkbox" value="6" /> Сб</label>
+    <label><input type="checkbox" value="0" /> Вс</label>
+  </div>
+</div>
+
+<div class="form-group">
+  <div class="muted" id="stat">Выберите интервал и хотя бы один день недели.</div>
+</div>
+
+<textarea id="output" class="out" readonly placeholder="Здесь появятся даты, каждая с новой строки"></textarea>
+
+<script>
+  const dateFrom = document.getElementById("dateFrom");
+  const dateTo = document.getElementById("dateTo");
+  const output = document.getElementById("output");
+  const stat = document.getElementById("stat");
+  const generateBtn = document.getElementById("generateBtn");
+  const copyBtn = document.getElementById("copyBtn");
+  const todayBtn = document.getElementById("todayBtn");
+  const dayCheckboxes = Array.from(document.querySelectorAll('.days input[type="checkbox"]'));
+
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function formatDateDMY(date) {
+    return `${pad2(date.getDate())}.${pad2(date.getMonth() + 1)}.${date.getFullYear()}`;
+  }
+
+  function formatDateYMD(date) {
+    return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+  }
+
+  function parseYMDLocal(value) {
+    if (!value) return null;
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return null;
+
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+
+    const dt = new Date(y, mo - 1, d, 0, 0, 0, 0);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+
+    return dt;
+  }
+
+  function getSelectedWeekdays() {
+    return new Set(
+      dayCheckboxes
+        .filter(cb => cb.checked)
+        .map(cb => Number(cb.value))
+    );
+  }
+
+  function generateDates() {
+    const from = parseYMDLocal(dateFrom.value);
+    const to = parseYMDLocal(dateTo.value);
+    const selectedDays = getSelectedWeekdays();
+
+    if (!from || !to) {
+      output.value = "";
+      stat.textContent = "Выберите обе даты.";
+      return;
+    }
+
+    if (from > to) {
+      output.value = "";
+      stat.textContent = "Дата начала не может быть позже даты конца.";
+      return;
+    }
+
+    if (selectedDays.size === 0) {
+      output.value = "";
+      stat.textContent = "Выберите хотя бы один день недели.";
+      return;
+    }
+
+    const result = [];
+    const cur = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0);
+
+    while (cur <= to) {
+      if (selectedDays.has(cur.getDay())) {
+        result.push(formatDateDMY(cur));
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+
+    output.value = result.join("\n");
+    stat.textContent = `Сгенерировано дат: ${result.length}`;
+  }
+
+  function setTodayRange() {
+    const today = new Date();
+    const ymd = formatDateYMD(today);
+    dateFrom.value = ymd;
+    dateTo.value = ymd;
+    generateDates();
+  }
+
+  generateBtn.addEventListener("click", generateDates);
+
+  copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(output.value || "");
+      stat.textContent = output.value ? "Скопировано ✓" : "Копировать нечего.";
+    } catch {
+      stat.textContent = "Не удалось скопировать.";
+    }
+  });
+
+  todayBtn.addEventListener("click", setTodayRange);
+
+  dateFrom.addEventListener("change", generateDates);
+  dateTo.addEventListener("change", generateDates);
+  dayCheckboxes.forEach(cb => cb.addEventListener("change", generateDates));
+
+  // По умолчанию: сегодня и текущий день недели отмечен
+  (function init() {
+    const today = new Date();
+    const ymd = formatDateYMD(today);
+    dateFrom.value = ymd;
+    dateTo.value = ymd;
+
+    const todayWeekday = today.getDay();
+    const cb = dayCheckboxes.find(x => Number(x.value) === todayWeekday);
+    if (cb) cb.checked = true;
+
+    generateDates();
+  })();
+</script>
+<h4>09.03.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
+</body>
+</html>

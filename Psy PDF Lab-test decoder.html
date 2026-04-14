@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF analīžu dekodētājs</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 20px; background: #fff; color: #111; }
+    h1 { color: #1156F3; text-align: center; margin-top: 0; }
+    .muted { color: #666; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
+    .btn, .file-label { cursor:pointer; background:#1fb1fd; color:#fff; border:none; padding:5px 10px; border-radius:4px; margin-top:5px; font-size:14px; display:inline-block; text-decoration:none; }
+    .btn:hover, .file-label:hover { background:#2196F3; }
+    .drop { border:2px dashed #ccc; border-radius:8px; padding:18px; text-align:center; background:#fff; margin-top:10px; }
+    .grid { display:grid; grid-template-columns:1.1fr 0.9fr; gap:14px; margin-top:14px; }
+    .card { border:1px solid #ccc; border-radius:8px; background:#fff; padding:12px; }
+    textarea, .output { width:100%; box-sizing:border-box; border:1px solid #ccc; border-radius:4px; padding:10px; font-size:1em; background:#fff; }
+    textarea { min-height:280px; resize:vertical; }
+    .output { min-height:180px; line-height:1.5; white-space:pre-wrap; }
+    #debugPanel { line-height:1.5; margin-top:8px; white-space:pre-wrap; }
+    @media (max-width:980px){ .grid { grid-template-columns:1fr; } }
+	h4 {color: #1fb1fd; margin-top: 10px; margin-bottom: 2px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>PDF analīžu dekodētājs</h1>
+  <!--<div class="muted">
+    Parseris lasa alias un vērtību tajā pašā rindā, pa atsevišķām sadaļām. Skaitliskām vērtībām vienība tiek ņemta no pirmā elementa masīvā <code>units</code>. Teksta vērtībām vienība netiek pievienota.
+  </div>-->
+
+  <div class="row">
+    <label class="file-label">Izvēlēties PDF<input id="fileInput" type="file" accept="application/pdf" multiple hidden /></label>
+    <button class="btn" id="decodeBtn">Dekodēt tekstu</button>
+    <button class="btn" id="copyBtn">Kopēt rezultātu</button>
+    <button class="btn" id="clearBtn">Notīrīt</button>
+    <span class="muted" id="status">Augšupielādē PDF vai ielīmē tekstu.</span>
+  </div>
+
+  <div class="drop" id="dropZone">
+    Ievelc PDF failu šeit vai izmanto pogu “Izvēlēties PDF”.
+    <div class="muted" id="fileList"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px;">Izvilktais teksts / manuāla ievade</div>
+      <textarea id="rawText" placeholder="Šeit automātiski parādīsies no PDF izvilktais teksts. Vari arī ielīmēt tekstu manuāli."></textarea>
+    </div>
+    <div class="card">
+      <div class="muted" style="margin-bottom:8px;">Rezultāts vienā rindkopā</div>
+      <div class="output" id="result">Šeit parādīsies dekodētais rezultāts.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="row" style="justify-content:space-between;">
+      <div class="muted">Atkļūdošanas panelis</div>
+      <button class="btn" id="toggleDebugBtn">Parādīt</button>
+    </div>
+    <div class="muted" id="debugPanel" style="display:none;"></div>
+  </div>
+
+  <script type="module">
+    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.mjs";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.mjs";
+
+    const BLOOD_ITEMS = [
+      { label: "RBC", aliases: ["Eritrocīti", "RBC"], units: ["×10¹²/L", "10e12/L", "10^12/L", "10¹²/L"] },
+      { label: "HGB", aliases: ["Hemoglobīns", "HGB"], units: ["g/dL", "g/L"] },
+      { label: "HCT", aliases: ["Hematokrīts", "Hematokrits", "HCT"], units: ["%"] },
+      { label: "MCV", aliases: ["MCV Eritroc.vid.tilp.", "MCV"], units: ["fL"] },
+      { label: "MCH", aliases: ["MCH Vid.Hb saturs er.", "MCH"], units: ["pg"] },
+      { label: "MCHC", aliases: ["MCHC Vid.Hb konc.er.", "MCHC"], units: ["g/dL", "g/L"] },
+      { label: "RDW", aliases: ["RDW Eritr. anizocit.", "RDW"], units: ["%"] },
+      { label: "WBC", aliases: ["Leikocīti", "WBC"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "PLT", aliases: ["Trombocīti", "PLT"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "NEU", aliases: ["Neitrofīli abs.", "Neitrofīlie abs.", "NEUT"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "LYM", aliases: ["Limfocīti abs.", "LYMPH"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "MON", aliases: ["Monocīti abs.", "MONO"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "EOS", aliases: ["Eozinofīli abs.", "EOS"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "BAS", aliases: ["Bazofīli abs.", "BASO"], units: ["×10⁹/L", "10e9/L", "10^9/L", "10⁹/L"] },
+      { label: "EGĀ", aliases: ["EGĀ", "ESR"], units: ["mm/h", "mm/st"] },
+      { label: "FER", aliases: ["Feritīns (Roche)", "Feritīns"], units: ["ng/mL"] },
+      { label: "Fe", aliases: ["Dzelzs", "Fe"], units: ["g/L"] },
+      { label: "TRF", aliases: ["Transferīns"], units: ["pg/mL"] },
+      { label: "Vit B12", aliases: ["Vitamīns B12 (Roche)", "Vitamīns B12"], units: ["pg/mL"] },
+      { label: "Vit B9", aliases: ["Folskābe", "Vitamīns B9"], units: ["ng/mL"] },
+      { label: "kop. BIL", aliases: ["Bilirubīns kopējais", "TBIL"], units: ["µmol/L", "umol/L"] },
+      { label: "tieš. BIL", aliases: ["Bilirubīns tiešais", "DBIL"], units: ["µmol/L", "umol/L"] },
+      { label: "ALAT", aliases: ["ALAT", "ALT"], units: ["U/L"] },
+      { label: "ASAT", aliases: ["ASAT", "AST"], units: ["U/L"] },
+      { label: "GGT", aliases: ["Gamma-glutamiltransfer", "Gamma-glutamiltransferāze", "GGT"], units: ["U/L"] },
+      { label: "AMY", aliases: ["Amilāze"], units: ["U/L"] },
+      { label: "ALP", aliases: ["Sārmainā fosfatāze"], units: ["mmol/L"] },
+      { label: "UREA", aliases: ["Urīnviela"], units: ["mmol/L"] },
+      { label: "CREA", aliases: ["Kreatinīns", "CREA"], units: ["µmol/L", "umol/L"] },
+      { label: "GFĀ", aliases: ["Glomerulārās filtrācijas ātrums", "GFĀ", "eGFR"], units: ["mL/min/1.73m²", "mL/min/1.73m2"] },
+      { label: "Urīnskābe", aliases: ["Urīnskābe"], units: ["µmol/L", "umol/L"] },
+      { label: "Gly", aliases: ["Glikoze (NaF)"], units: ["mmol/L"] },
+      { label: "HbA1c", aliases: ["Glikētais HGB (HbA1c) E", "Glikētais HGB (HbA1c)"], units: ["%"] },
+      { label: "Troponīns T", aliases: ["Troponīns T augstas"], units: ["pg/mL"] },
+      { label: "Troponīns I", aliases: ["Troponīns I augstas"], units: ["pg/mL"] },
+      { label: "Protrombīns", aliases: ["Protrombīns"], units: ["%"] },
+      { label: "INR", aliases: ["INR"], units: [] },
+      { label: "APTL", aliases: ["APTL", "APTT"], units: ["s"] },
+      { label: "Fibrinogēns", aliases: ["Fibrinogēns"], units: ["g/L"] },
+      { label: "D-dimēri", aliases: ["D-dimēri"], units: ["mg/L"] },
+      { label: "Trombīna laiks", aliases: ["Trombīna laiks"], units: ["s"] },
+      { label: "CRO", aliases: ["C reaktīvais olbaltums", "CRP", "CRO"], units: ["mg/L"] },
+      { label: "RF", aliases: ["Reimatoīdais faktors", "RF"], units: ["IU/mL"] },
+      { label: "ASO", aliases: ["Antistreptolizīns O", "ASO"], units: ["mmol/L"] },
+      { label: "Na", aliases: ["Nātrijs", "Na"], units: ["mmol/L"] },
+      { label: "K", aliases: ["Kālijs", "K"], units: ["mmol/L"] },
+      { label: "Cl", aliases: ["Hlorīdi", "Cl"], units: ["mmol/L"] },
+      { label: "Mg", aliases: ["Magnijs", "Mg"], units: ["mmol/L"] },
+      { label: "Ca", aliases: ["Ca", "Kalcijs"], units: ["mmol/L"] },
+      { label: "Li", aliases: ["Litijs", "Li"], units: ["mmol/L"] },
+      { label: "Kop. holesterīns", aliases: ["Holesterīns kopējais", "TC"], units: ["mmol/L"] },
+      { label: "ABL", aliases: ["ABL Holesterīns", "ABL"], units: ["mmol/L"] },
+      { label: "ZBL", aliases: ["ZBL Holesterīns", "ZBL"], units: ["mmol/L"] },
+      { label: "Ne-ABL", aliases: ["Ne-ABL holesterīns", "Ne-ABL"], units: ["mmol/L"] },
+      { label: "Remnantu hol-s", aliases: ["Remnantu holesterīns"], units: ["mmol/L"] },
+      { label: "TG", aliases: ["Triglicerīdi", "TG"], units: ["mmol/L"] },
+      { label: "TSH", aliases: ["Tireotropais hormons", "TSH"], units: ["µIU/mL", "mIU/L"] },
+      { label: "FT3", aliases: ["Brīvais T3", "FT3"], units: ["pmol/L"] },
+      { label: "FT4", aliases: ["Brīvais tiroksīns FT4", "Brīvais T4", "FT4"], units: ["pmol/L"] },
+      { label: "PRL", aliases: ["Prolaktīns"], units: ["mIU/L"] },
+      { label: "STH", aliases: ["Somatotropais", "Somatotropais hormons"], units: ["ng/mL"] },
+      { label: "Vit D", aliases: ["Vitamīns D kopējais"], units: ["ng/mL"] },
+      { label: "Kop. PSA", aliases: ["Kopējais PSA", "PSA"], units: ["ng/mL"] },
+      { label: "RPR", aliases: ["RPR (sifilisa ekspresdiagn.)", "RPR"], units: [] },
+      { label: "HIV Ag/Ab", aliases: ["HIV Ag/Ab", "HIV"], units: [] },
+      { label: "HSV 1/2 IgM", aliases: ["Anti Herpes simplex 1/2 IgM", "HSV 1/2 IgM"], units: ["U/ml", "U/mL"] },
+      { label: "HSV 1/2 IgG", aliases: ["Anti Herpes simplex 1/2 IgG", "HSV 1/2 IgG"], units: ["U/ml", "U/mL"] },
+      { label: "HBsAg", aliases: ["HBsAg kvalitatīvi", "HBsAg"], units: [] },
+      { label: "Anti-HBc IgG", aliases: ["Anti Hbc", "Anti-HBc IgG"], units: [] },
+      { label: "Anti-HBc IgM", aliases: ["Anti Hbc IgM", "Anti-HBc IgM"], units: [] },
+      { label: "Anti-HCV", aliases: ["Hepatīta C antivielas", "Hepatīta C", "HCV antivielas", "Anti-HCV"], units: [] },
+      { label: "Borrelia IgG", aliases: ["Borrelia burgdorferi IgG", "Borrelia IgG"], units: ["NTU"] },
+      { label: "Borrelia IgM", aliases: ["Borrelia burgdorferi IgM", "Borrelia IgM"], units: ["NTU"] },
+      { label: "Anti-TBEV IgM", aliases: ["Anti Ērču encefalīta vīrusa IgM", "Ērču encefalīta vīrusa IgM"], units: ["NTU"] },
+      { label: "M. pneumoniae IgG", aliases: ["Mycoplasma pneumoniae IgG"], units: ["RU/mL"] },
+      { label: "M. pneumoniae IgM", aliases: ["Mycoplasma pneumoniae IgM"], units: ["index"] },
+      { label: "Cl. difficile toksīns", aliases: ["Clostridium difficile toksīns"], units: [] }
+    ];
+
+    const URINE_ITEMS = [
+      { label: "īpat. svars", aliases: ["Īpatnējais svars", "SG"], units: [] },
+      { label: "pH", aliases: ["Reakcija", "pH"], units: [] },
+      { label: "glikoze", aliases: ["Glikoze", "Urine glucose"], units: ["mmol/L"] },
+      { label: "olbaltums", aliases: ["Olbaltums", "PRO"], units: ["g/L"] },
+      { label: "ketonvielas", aliases: ["Ketonvielas", "KET"], units: ["mmol/L"] },
+      { label: "nitrīti", aliases: ["Nitrīti", "NIT"], units: [] },
+      { label: "Ery", aliases: ["Eritrocīti", "ERY"], units: ["Ery/µL", "Ery/uL"] },
+      { label: "Leu", aliases: ["Leikocīti urīnā", "Leikocīti", "LEU"], units: ["Leu/µL", "Leu/uL"] },
+      { label: "urobilinogēns", aliases: ["Urobilinogēns", "UBG"], units: ["µmol/L", "umol/L"] },
+      { label: "BIL", aliases: ["Bilirubīns urīnā", "Bilirubīns", "BIL"], units: ["µmol/L", "umol/L"] },
+      { label: "krāsa", aliases: ["Krāsa"], units: [] },
+      { label: "dzidrums", aliases: ["Dzidrums"], units: [] }
+    ];
+
+    function escapeRegex(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function normalizeText(raw) {
+      return (raw || "")
+        .replace(/\u00A0/g, " ")
+        .replace(/μ/g, "µ")
+        .replace(/10e12\/L/gi, "×10¹²/L")
+        .replace(/10e9\/L/gi, "×10⁹/L")
+        .replace(/10\^12\/L/gi, "×10¹²/L")
+        .replace(/10\^9\/L/gi, "×10⁹/L")
+        .replace(/\r/g, "")
+        .replace(/\s*↓\s*/g, " ")
+        .replace(/\s*↑\s*/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function normalizeLines(raw) {
+      const lines = (raw || "")
+        .replace(/\u00A0/g, " ")
+        .replace(/μ/g, "µ")
+        .replace(/\r/g, "")
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean);
+
+      const out = [];
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i] === "RPR (sifilisa" && lines[i + 1] === "ekspresdiagn.)") {
+          out.push("RPR (sifilisa ekspresdiagn.)");
+          i += 1;
+          continue;
+        }
+        if (lines[i] === "Glomerulārās" && lines[i + 1] === "100") {
+          out.push("Glomerulārās 100");
+          continue;
+        }
+        out.push(lines[i]);
+      }
+      return out;
+    }
+
+    function parsePdfDate(text) {
+      const report = text.match(/Pārskata sastādīšanas datums[:\s]+(\d{2}\.\d{2}\.\d{4})/i);
+      if (report) return report[1];
+      const registered = text.match(/Reģistrēts\s+(\d{2}\.\d{2}\.\d{4})/i);
+      if (registered) return registered[1];
+      const generic = text.match(/(\d{2}\.\d{2}\.\d{4})/);
+      return generic ? generic[1] : "nav atrasts";
+    }
+
+    function extractTextualValue(text) {
+      const m = text.match(/\b(Negatīvs|Pozitīvs|Norma|Dzintara|Dzeltena|Gaiši dzeltena|Dzidrs|Duļķains|Izteikti duļķains|Brūna|Maz mikrofloras|A1)\b/i);
+      return m ? m[1].toLowerCase() : null;
+    }
+
+    function parseValueFromSameLine(line, item) {
+      const aliases = [...item.aliases].sort((a, b) => b.length - a.length);
+
+      const alias = aliases.find((a) => {
+        const re = new RegExp(`^${escapeRegex(a)}(?:$|\\s+)`, "i");
+        return re.test(line);
+      });
+      if (!alias) return null;
+
+      const rest = line.replace(new RegExp(`^${escapeRegex(alias)}(?:$|\\s+)`, "i"), "").trim();
+      if (!rest) return null;
+
+      const textVal = extractTextualValue(rest);
+      if (textVal) return { label: item.label, result: textVal, unit: "" };
+
+      const num = rest.match(/^[<>]?\s*-?\d+(?:[.,]\d+)?(?:\s*[–-]\s*\d+(?:[.,]\d+)?)?/);
+      if (!num) return null;
+
+      return {
+        label: item.label,
+        result: num[0].replace(/,/g, ".").trim(),
+        unit: item.units && item.units.length ? item.units[0] : ""
+      };
+    }
+
+    function parseMultilineGFR(lines) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = normalizeText(lines[i]);
+        if (/^Glomerulārās\s+\d+(?:[.,]\d+)?$/i.test(line)) {
+          const m = line.match(/^Glomerulārās\s+(\d+(?:[.,]\d+)?)$/i);
+          if (m) return { label: "GFĀ", result: m[1].replace(/,/g, "."), unit: "mL/min/1.73m²" };
+        }
+      }
+      return null;
+    }
+
+    function getSection(lines, startMarker, stopMarkers) {
+      const startIdx = lines.findIndex((line) => normalizeText(line) === startMarker);
+      if (startIdx === -1) return [];
+      let endIdx = lines.length;
+      for (let i = startIdx + 1; i < lines.length; i++) {
+        const current = normalizeText(lines[i]);
+        if (stopMarkers.includes(current)) {
+          endIdx = i;
+          break;
+        }
+      }
+      return lines.slice(startIdx + 1, endIdx);
+    }
+
+    function parseOrdered(lines, config) {
+      const found = [];
+      const seenLabels = new Set();
+
+      for (const item of config) {
+        for (const rawLine of lines) {
+          const line = normalizeText(rawLine);
+          const parsed = parseValueFromSameLine(line, item);
+          if (parsed) {
+            if (!seenLabels.has(parsed.label)) {
+              seenLabels.add(parsed.label);
+              found.push(parsed);
+            }
+            break;
+          }
+        }
+      }
+      return found;
+    }
+
+    function parseInfectSection(lines) {
+      const normalizedLines = lines.map(normalizeText);
+      const joined = normalizedLines.join("\n");
+      const results = [];
+
+      const add = (label, result, unit = "") => {
+        if (result === null || result === undefined || result === "") return;
+        if (!results.some((x) => x.label === label)) results.push({ label, result, unit });
+      };
+
+      const txt = (re) => {
+        const m = joined.match(re);
+        return m ? m[1].toLowerCase() : null;
+      };
+      const num = (re) => {
+        const m = joined.match(re);
+        return m ? m[1].replace(/,/g, ".") : null;
+      };
+
+      let rpr = txt(/RPR(?:\s*\(sifilisa(?:\s+ekspresdiagn\.)?\)?)?\s+(Negatīvs|Pozitīvs)/i);
+      if (!rpr) {
+        for (let i = 0; i < normalizedLines.length; i++) {
+          const prev = normalizedLines[i - 1] || "";
+          const line = normalizedLines[i] || "";
+          const next = normalizedLines[i + 1] || "";
+          const next2 = normalizedLines[i + 2] || "";
+          if (/^RPR\b/i.test(line) || /RPR \(sifilisa/i.test(line) || /ekspresdiagn\.\)/i.test(line)) {
+            const blob = [prev, line, next, next2].join(" ");
+            const q = blob.match(/\b(Negatīvs|Pozitīvs)\b/i);
+            if (q) {
+              rpr = q[1].toLowerCase();
+              break;
+            }
+          }
+        }
+      }
+      add("RPR", rpr);
+
+      add("HIV Ag/Ab", txt(/HIV Ag\/Ab\s+(Negatīvs|Pozitīvs)/i));
+      add("HSV 1/2 IgM", num(/Anti Herpes simplex\s+([0-9.,]+)\s+1\/2 IgM/i), "U/ml");
+      add("HSV 1/2 IgG", num(/Anti Herpes simplex\s+([0-9.,]+)\s+1\/2 IgG/i), "U/ml");
+      add("HBsAg", txt(/HBsAg kvalitatīvi\s+(Negatīvs|Pozitīvs)/i));
+      add("Anti-HBc IgG", txt(/Anti Hbc\s+(Negatīvs|Pozitīvs)(?!\s*IgM)/i));
+      add("Anti-HBc IgM", txt(/Anti Hbc IgM\s+(Negatīvs|Pozitīvs)/i));
+      add("Anti-HCV", txt(/Hepatīta C\s+(Negatīvs|Pozitīvs)\s+antivielas/i) || txt(/Hepatīta C antivielas\s+(Negatīvs|Pozitīvs)/i));
+      add("Borrelia IgG", num(/Borrelia burgdorferi\s+([0-9.,]+)\s+IgG/i), "NTU");
+      add("Borrelia IgM", num(/Borrelia burgdorferi\s+([0-9.,]+)\s+IgM/i), "NTU");
+      add("Anti-TBEV IgM", num(/Anti Ērču encefalīta\s+([0-9.,]+)\s+vīrusa IgM/i), "NTU");
+
+      return results;
+    }
+
+    function sortByConfig(items, config) {
+      const order = new Map(config.map((item, idx) => [item.label, idx]));
+      return [...items].sort((a, b) => (order.get(a.label) ?? 999) - (order.get(b.label) ?? 999));
+    }
+
+    function buildOutput(date, blood, urine) {
+      const parts = [`${date} Pilna asins aina, bioķīmija:`];
+      const asText = (item) => {
+        if (!item.unit) return `${item.label} ${item.result}`;
+        if (item.unit === "×10¹²/L" || item.unit === "×10⁹/L") return `${item.label} ${item.result}${item.unit}`;
+        return `${item.label} ${item.result} ${item.unit}`;
+      };
+      blood.forEach((item) => parts.push(asText(item)));
+      if (urine.length) parts.push(`urīna analīze: ${urine.map(asText).join(", ")}`);
+      return parts.join(", ").replace(".,", ".").replace(":,", ":");
+    }
+
+    async function extractPdfText(file) {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const pages = [];
+
+      for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+        const page = await pdf.getPage(pageNo);
+        const content = await page.getTextContent();
+
+        const items = content.items
+          .filter((it) => typeof it.str === "string" && it.str.trim())
+          .map((it) => ({ str: it.str.trim(), x: it.transform?.[4] ?? 0, y: it.transform?.[5] ?? 0 }))
+          .sort((a, b) => Math.abs(b.y - a.y) > 2 ? b.y - a.y : a.x - b.x);
+
+        const lines = [];
+        for (const item of items) {
+          const last = lines[lines.length - 1];
+          if (!last || Math.abs(last.y - item.y) > 2) lines.push({ y: item.y, parts: [item] });
+          else last.parts.push(item);
+        }
+
+        const pageText = lines.map((line) => line.parts.sort((a, b) => a.x - b.x).map((p) => p.str).join(" ")).join("\n");
+        pages.push(pageText);
+      }
+
+      return pages.join("\n\n");
+    }
+
+    function parseAnalysis(rawText) {
+      const lines = normalizeLines(rawText);
+      const full = normalizeText(rawText);
+      const date = parsePdfDate(full);
+
+      const hematologyLines = getSection(lines, "Hematoloģija", ["Klīniskā ķīmija", "Infektoloģija", "Klīniskās analīzes", "Urīna analīze ar stripu"]);
+      const chemistryLines = getSection(lines, "Klīniskā ķīmija", ["Infektoloģija", "Klīniskās analīzes", "Urīna analīze ar stripu"]);
+      const infectLines = getSection(lines, "Infektoloģija", ["Klīniskās analīzes", "Urīna analīze ar stripu", "Materiāls paņemts:", "Materiāls:"]);
+      const urineLines = getSection(lines, "Urīna analīze ar stripu", ["Materiāls paņemts:", "Materiāls:"]);
+
+      const hemaConfig = BLOOD_ITEMS.filter((x) => ["RBC","HGB","HCT","MCV","MCH","MCHC","RDW","WBC","PLT","NEU","LYM","MON","EOS","BAS","EGĀ"].includes(x.label));
+      const chemConfig = BLOOD_ITEMS.filter((x) => ["FER","Fe","TRF","Vit B12","Vit B9","kop. BIL","tieš. BIL","ALAT","ASAT","GGT","AMY","ALP","UREA","CREA","GFĀ","Urīnskābe","Gly","HbA1c","Troponīns T","Troponīns I","Protrombīns","INR","APTL","Fibrinogēns","D-dimēri","Trombīna laiks","CRO","RF","ASO","Na","K","Cl","Mg","Ca","Li","Kop. holesterīns","ABL","ZBL","Ne-ABL","Remnantu hol-s","TG","TSH","FT3","FT4","PRL","STH","Vit D","Kop. PSA"].includes(x.label));
+
+      let blood = [
+        ...parseOrdered(hematologyLines, hemaConfig),
+        ...parseOrdered(chemistryLines, chemConfig),
+        ...parseInfectSection(infectLines)
+      ];
+
+      if (!blood.some((x) => x.label === "GFĀ")) {
+        const gfr = parseMultilineGFR(chemistryLines);
+        if (gfr) blood.push(gfr);
+      }
+
+      blood = sortByConfig(blood, BLOOD_ITEMS);
+
+      const urine = parseOrdered(urineLines, URINE_ITEMS);
+      const output = buildOutput(date, blood, urine);
+      return { date, blood, urine, output, lines, hematologyLines, chemistryLines, infectLines, urineLines };
+    }
+
+    const rawTextEl = document.getElementById("rawText");
+    const resultEl = document.getElementById("result");
+    const statusEl = document.getElementById("status");
+    const fileListEl = document.getElementById("fileList");
+    const debugPanel = document.getElementById("debugPanel");
+    const fileInput = document.getElementById("fileInput");
+    const dropZone = document.getElementById("dropZone");
+    const toggleDebugBtn = document.getElementById("toggleDebugBtn");
+    let debugOpen = false;
+
+    function renderDebug(summary) {
+      debugPanel.textContent =
+        `Datums: ${summary.date}\n\n` +
+        `Asins rādītāji:\n${summary.blood.map((x) => `${x.label}=${x.result}${x.unit ? " " + x.unit : ""}`).join(", ") || "—"}\n\n` +
+        `Urīna rādītāji:\n${summary.urine.map((x) => `${x.label}=${x.result}${x.unit ? " " + x.unit : ""}`).join(", ") || "—"}\n\n` +
+        `Hematoloģija:\n${(summary.hematologyLines || []).join("\n")}\n\n` +
+        `Klīniskā ķīmija:\n${(summary.chemistryLines || []).join("\n")}\n\n` +
+        `Infektoloģija:\n${(summary.infectLines || []).join("\n")}\n\n` +
+        `Urīna sadaļa:\n${(summary.urineLines || []).join("\n")}`;
+    }
+
+    async function handleFiles(files) {
+      const picked = Array.from(files || []).filter((f) => /\.pdf$/i.test(f.name));
+      if (!picked.length) {
+        statusEl.textContent = "PDF fails nav izvēlēts.";
+        return;
+      }
+      fileListEl.textContent = picked.map((f) => f.name).join(", ");
+      statusEl.textContent = "Notiek PDF apstrāde...";
+      try {
+        const chunks = [];
+        for (const file of picked) {
+          const text = await extractPdfText(file);
+          chunks.push(`### ${file.name} ###\n${text}`);
+        }
+        const combined = chunks.join("\n\n");
+        rawTextEl.value = combined;
+        const parsed = parseAnalysis(combined);
+        resultEl.textContent = parsed.output;
+        renderDebug(parsed);
+        statusEl.textContent = `Apstrādāts: ${picked.map((f) => f.name).join(", ")}`;
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = "Neizdevās nolasīt PDF. Vari ielīmēt tekstu manuāli un nospiest “Dekodēt tekstu”.";
+      }
+    }
+
+    document.getElementById("decodeBtn").addEventListener("click", () => {
+      const parsed = parseAnalysis(rawTextEl.value);
+      resultEl.textContent = parsed.output;
+      renderDebug(parsed);
+      statusEl.textContent = `Atrasti ${parsed.blood.length + parsed.urine.length} rādītāji.`;
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultEl.textContent || "");
+        statusEl.textContent = "Rezultāts nokopēts ✓";
+      } catch {
+        statusEl.textContent = "Neizdevās nokopēt rezultātu.";
+      }
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      rawTextEl.value = "";
+      resultEl.textContent = "Šeit parādīsies dekodētais rezultāts.";
+      fileListEl.textContent = "";
+      debugPanel.textContent = "";
+      statusEl.textContent = "Notīrīts.";
+    });
+
+    fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
+    dropZone.addEventListener("dragover", (e) => e.preventDefault());
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      handleFiles(e.dataTransfer.files);
+    });
+
+    toggleDebugBtn.addEventListener("click", () => {
+      debugOpen = !debugOpen;
+      debugPanel.style.display = debugOpen ? "block" : "none";
+      toggleDebugBtn.textContent = debugOpen ? "Paslēpt" : "Parādīt";
+    });
+  </script>
+<h4>05.04.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
+</body>
+</html>
