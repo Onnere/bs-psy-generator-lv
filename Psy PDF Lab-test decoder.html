@@ -84,6 +84,7 @@
       { label: "Fe", aliases: ["Dzelzs", "Fe"], units: ["g/L"] },
       { label: "TRF", aliases: ["Transferīns"], units: ["pg/mL"] },
       { label: "Vit B12", aliases: ["Vitamīns B12 (Roche)", "Vitamīns B12"], units: ["pg/mL"] },
+      { label: "Akt. Vit B12", aliases: ["Aktīvais vitamīns B12"], units: ["pmol/L"] },
       { label: "Vit B9", aliases: ["Folskābe", "Vitamīns B9"], units: ["ng/mL"] },
       { label: "kop. BIL", aliases: ["Bilirubīns kopējais", "TBIL"], units: ["µmol/L", "umol/L"] },
       { label: "tieš. BIL", aliases: ["Bilirubīns tiešais", "DBIL"], units: ["µmol/L", "umol/L"] },
@@ -114,6 +115,7 @@
       { label: "Cl", aliases: ["Hlorīdi", "Cl"], units: ["mmol/L"] },
       { label: "Mg", aliases: ["Magnijs", "Mg"], units: ["mmol/L"] },
       { label: "Ca", aliases: ["Ca", "Kalcijs"], units: ["mmol/L"] },
+      { label: "P", aliases: ["Fosfors neorganiskais"], units: ["mmol/L"] },
       { label: "Li", aliases: ["Litijs", "Li"], units: ["mmol/L"] },
       { label: "Kop. holesterīns", aliases: ["Holesterīns kopējais", "TC"], units: ["mmol/L"] },
       { label: "ABL", aliases: ["ABL Holesterīns", "ABL"], units: ["mmol/L"] },
@@ -124,6 +126,8 @@
       { label: "TSH", aliases: ["Tireotropais hormons", "TSH"], units: ["µIU/mL", "mIU/L"] },
       { label: "FT3", aliases: ["Brīvais T3", "FT3"], units: ["pmol/L"] },
       { label: "FT4", aliases: ["Brīvais tiroksīns FT4", "Brīvais T4", "FT4"], units: ["pmol/L"] },
+      { label: "T3", aliases: ["Trijodtironīns - T3"], units: ["nmol/L"] },
+      { label: "T4", aliases: ["Tiroksīns - T4"], units: ["nmol/L"] },
       { label: "PRL", aliases: ["Prolaktīns"], units: ["mIU/L"] },
       { label: "STH", aliases: ["Somatotropais", "Somatotropais hormons"], units: ["ng/mL"] },
       { label: "Vit D", aliases: ["Vitamīns D kopējais"], units: ["ng/mL"] },
@@ -339,20 +343,128 @@
       return results;
     }
 
+    function parseStoolSection(lines) {
+      const normalizedLines = lines.map(normalizeText);
+      const joined = normalizedLines.join("\n");
+      const results = [];
+
+      const add = (label, result, unit = "") => {
+        if (result === null || result === undefined || result === "") return;
+        if (!results.some((x) => x.label === label)) results.push({ label, result, unit });
+      };
+
+      const txt = (re) => {
+        const m = joined.match(re);
+        return m ? m[1].toLowerCase() : null;
+      };
+
+      const plain = (re) => {
+        const m = joined.match(re);
+        return m ? normalizeText(m[1]) : null;
+      };
+
+      // Fēču izmeklējumi
+      add("apslēptās asinis fēcēs", txt(/Apslēptās asinis fēcēs\s+(Negatīvs|Pozitīvs)/i));
+
+      // Mikrobioloģija / kultūras
+      add(
+        "uzsējums uz patogēno zarnu mikrofloru",
+        plain(/Uzsējums uz patogēno zarnu mikrofloru\s+(.+?)(?:\n|\s+\(Shigella un Salmonella\))/i)
+      );
+
+      add(
+        "fēču uzsējums uz Enterobacteriaceae",
+        plain(/Fēču uzsējums uz Enterobacteriaceae\s+(.+?)(?:\n|$)/i)
+      );
+
+      add("Gastro-enterīta E.coli [N]", txt(/Gastro-enterīta E\.coli\s+\[N\]\s+(Negatīvs|Pozitīvs)/i));
+
+      const kleb = joined.match(/Klebsiella pneumoniae\s*-\s*\(1\):\s*(.+?)(?:\n|$)/i);
+      if (kleb) {
+        const extra = /\bESBL\b/i.test(joined) ? "ESBL" : "";
+        add("Klebsiella pneumoniae", `${normalizeText(kleb[1]).toLowerCase()}${extra ? " " + extra : ""}`);
+      }
+
+      // Stool antigens / toxins, including split names
+      add("Adenovīrusu antigēns", txt(/Adeno vīrusa\s+(Negatīvs|Pozitīvs)\s+antigēns/i) || txt(/Adenovīrusu antigēns\s+(Negatīvs|Pozitīvs)/i));
+      add("Rotavīrusu antigēns", txt(/Rota vīrusa\s+(Negatīvs|Pozitīvs)\s+antigēns/i) || txt(/Rotavīrusu antigēns\s+(Negatīvs|Pozitīvs)/i));
+      add("Clostridium difficile toksīns", txt(/(?:\(1\)\s*)?Clostridium difficile\s+(Negatīvs|Pozitīvs)\s+toksīns/i) || txt(/Clostridium difficile toksīns\s+(Negatīvs|Pozitīvs)/i));
+      add("Norovīrusa antigēns", txt(/(?:\(1\)\s*)?Norovīrusa antigēns\s+(Negatīvs|Pozitīvs)/i));
+
+      // A/B jutības noteikšana is stool/microbiology-related, not standard blood infection panel.
+      add("A/B jutības noteikšana", txt(/A\/B jutības noteikšana\s+(Negatīvs|Pozitīvs)/i));
+
+      return results;
+    }
+
+    function parseAntibiogram(lines) {
+      const normalizedLines = lines.map(normalizeText);
+      const start = normalizedLines.findIndex((line) => /^ANTIBIOGRAM\b/i.test(line));
+      if (start === -1) return [];
+
+      const results = [];
+      const add = (name, value) => {
+        if (!name || !value) return;
+        if (!/^[RSI]$/i.test(value)) return;
+        const label = normalizeText(name);
+        const result = value.toUpperCase();
+        if (!results.some((x) => x.label === label)) results.push({ label, result, unit: "" });
+      };
+
+      for (let i = start + 1; i < normalizedLines.length; i++) {
+        const line = normalizedLines[i];
+        if (!line || /^R\/S\/I$/i.test(line)) continue;
+        if (/^R:\s*rezistents/i.test(line)) break;
+        if (/^A\/B jutības noteikšana\b/i.test(line)) break;
+        if (/^(Rotavīrusu antigēns|Rota vīrusa|Clostridium difficile|Norovīrusa|Materiāls paņemts:)/i.test(line)) break;
+
+        // Standard one-line form: "Amikacin S"
+        let m = line.match(/^(.+?)\s+([RSI])$/i);
+        if (m) {
+          add(m[1], m[2]);
+          continue;
+        }
+
+        // Split wrapped antibiotic name:
+        // "Trimethoprim / R" + "Sulfamethoxazole"
+        m = line.match(/^(.+?\/)\s*([RSI])$/i);
+        if (m && normalizedLines[i + 1]) {
+          add(`${m[1]} ${normalizedLines[i + 1]}`, m[2]);
+          i += 1;
+        }
+      }
+
+      return results;
+    }
+
+
     function sortByConfig(items, config) {
       const order = new Map(config.map((item, idx) => [item.label, idx]));
       return [...items].sort((a, b) => (order.get(a.label) ?? 999) - (order.get(b.label) ?? 999));
     }
 
-    function buildOutput(date, blood, urine) {
-      const parts = [`${date} Pilna asins aina, bioķīmija:`];
+    function buildOutput(date, blood, urine, stool = [], antibiogram = []) {
+      const hasBlood = blood.length > 0;
+      const hasUrine = urine.length > 0;
+      const hasStool = stool.length > 0;
+      const hasAntibiogram = antibiogram.length > 0;
+
+      let header = `${date} Pilna asins aina, bioķīmija:`;
+      if (!hasBlood && !hasUrine && (hasStool || hasAntibiogram)) {
+        header = `${date}:`;
+      }
+
+      const parts = [header];
       const asText = (item) => {
         if (!item.unit) return `${item.label} ${item.result}`;
         if (item.unit === "×10¹²/L" || item.unit === "×10⁹/L") return `${item.label} ${item.result}${item.unit}`;
         return `${item.label} ${item.result} ${item.unit}`;
       };
+
       blood.forEach((item) => parts.push(asText(item)));
       if (urine.length) parts.push(`urīna analīze: ${urine.map(asText).join(", ")}`);
+      if (stool.length) parts.push(`fēču analīze: ${stool.map(asText).join(", ")}`);
+      if (antibiogram.length) parts.push(`antibiogramma: ${antibiogram.map(asText).join(", ")}`);
       return parts.join(", ").replace(".,", ".").replace(":,", ":");
     }
 
@@ -395,7 +507,7 @@
       const urineLines = getSection(lines, "Urīna analīze ar stripu", ["Materiāls paņemts:", "Materiāls:"]);
 
       const hemaConfig = BLOOD_ITEMS.filter((x) => ["RBC","HGB","HCT","MCV","MCH","MCHC","RDW","WBC","PLT","NEU","LYM","MON","EOS","BAS","EGĀ"].includes(x.label));
-      const chemConfig = BLOOD_ITEMS.filter((x) => ["FER","Fe","TRF","Vit B12","Vit B9","kop. BIL","tieš. BIL","ALAT","ASAT","GGT","AMY","ALP","UREA","CREA","GFĀ","Urīnskābe","Gly","HbA1c","Troponīns T","Troponīns I","Protrombīns","INR","APTL","Fibrinogēns","D-dimēri","Trombīna laiks","CRO","RF","ASO","Na","K","Cl","Mg","Ca","Li","Kop. holesterīns","ABL","ZBL","Ne-ABL","Remnantu hol-s","TG","TSH","FT3","FT4","PRL","STH","Vit D","Kop. PSA"].includes(x.label));
+      const chemConfig = BLOOD_ITEMS.filter((x) => ["FER","Fe","TRF","Vit B12","Akt. Vit B12","Vit B9","kop. BIL","tieš. BIL","ALAT","ASAT","GGT","AMY","ALP","UREA","CREA","GFĀ","Urīnskābe","Gly","HbA1c","Troponīns T","Troponīns I","Protrombīns","INR","APTL","Fibrinogēns","D-dimēri","Trombīna laiks","CRO","RF","ASO","Na","K","Cl","Mg","Ca","P","Li","Kop. holesterīns","ABL","ZBL","Ne-ABL","Remnantu hol-s","TG","TSH","FT3","FT4","T3","T4","PRL","STH","Vit D","Kop. PSA"].includes(x.label));
 
       let blood = [
         ...parseOrdered(hematologyLines, hemaConfig),
@@ -411,8 +523,11 @@
       blood = sortByConfig(blood, BLOOD_ITEMS);
 
       const urine = parseOrdered(urineLines, URINE_ITEMS);
-      const output = buildOutput(date, blood, urine);
-      return { date, blood, urine, output, lines, hematologyLines, chemistryLines, infectLines, urineLines };
+      const stool = parseStoolSection(lines);
+      const antibiogram = parseAntibiogram(lines);
+
+      const output = buildOutput(date, blood, urine, stool, antibiogram);
+      return { date, blood, urine, stool, antibiogram, output, lines, hematologyLines, chemistryLines, infectLines, urineLines };
     }
 
     const rawTextEl = document.getElementById("rawText");
@@ -430,6 +545,8 @@
         `Datums: ${summary.date}\n\n` +
         `Asins rādītāji:\n${summary.blood.map((x) => `${x.label}=${x.result}${x.unit ? " " + x.unit : ""}`).join(", ") || "—"}\n\n` +
         `Urīna rādītāji:\n${summary.urine.map((x) => `${x.label}=${x.result}${x.unit ? " " + x.unit : ""}`).join(", ") || "—"}\n\n` +
+        `Fēču rādītāji:\n${(summary.stool || []).map((x) => `${x.label}=${x.result}${x.unit ? " " + x.unit : ""}`).join(", ") || "—"}\n\n` +
+        `Antibiogramma:\n${(summary.antibiogram || []).map((x) => `${x.label}=${x.result}`).join(", ") || "—"}\n\n` +
         `Hematoloģija:\n${(summary.hematologyLines || []).join("\n")}\n\n` +
         `Klīniskā ķīmija:\n${(summary.chemistryLines || []).join("\n")}\n\n` +
         `Infektoloģija:\n${(summary.infectLines || []).join("\n")}\n\n` +
@@ -499,6 +616,6 @@
       toggleDebugBtn.textContent = debugOpen ? "Paslēpt" : "Parādīt";
     });
   </script>
-<h4>05.04.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
+<h4>20.05.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
 </body>
 </html>

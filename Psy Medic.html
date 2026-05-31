@@ -48,6 +48,10 @@
       padding: 5px 10px;
       border-radius: 4px;
     }
+	.between-category{
+	color: #1156F3;
+	font-size: 12pt;
+	}
     .btn:hover {
       background-color: #2196F3;
     }
@@ -158,22 +162,28 @@
 </div>
 <h3>Соматика</h3>
 <div class="med-buttons">
+<span class="between-category">НСПВ, п/в</span>
 <button class="btn" onclick="insertText('Tab. Ibuprofeni')">Tab. Ibuprofeni</button>
 <button class="btn" onclick="insertText('Tab. Paracetamoli')">Tab. Paracetamoli</button>
 <button class="btn" onclick="insertText('Tab. Diclofenaci')">Tab. Diclofenaci</button>
 <button class="btn" onclick="insertText('Sol. Diclofenaci')">Sol. Diclofenaci</button>
 <button class="btn" onclick="insertText('Tab. Aspirini')">Tab. Aspirini</button>
 <button class="btn" onclick="insertText('Tab. Analgini')">Tab. Analgini</button>
+<span class="between-category">а/б</span>
 <button class="btn" onclick="insertText('Tab. Metronidazoli')">Tab. Metronidazoli</button>
-<button class="btn" onclick="insertText('Caps. Omeprazoli')">Caps. Omeprazoli</button>
 <button class="btn" onclick="insertText('Tab. Doxicyclini')">Tab. Doxicyclini</button>
 <button class="btn" onclick="insertText('Tab. Amoxiclavi 875/125 mg')">Tab. Amoxiclavi 875/125 mg</button>
 <button class="btn" onclick="insertText('Tab. Clindamycini')">Tab. Clindamycini</button>
-<button class="btn" onclick="insertText('Tab. Ipidacrini')">Tab. Ipidacrini</button>
+
+<span class="between-category">ЖКТ</span>
+<button class="btn" onclick="insertText('Caps. Omeprazoli')">Caps. Omeprazoli</button>
 <button class="btn" onclick="insertText('Tab. Drotaverini')">Tab. Drotaverini</button>
 <button class="btn" onclick="insertText('Pulv. Diasmectini')">Pulv. Diasmectini</button>
 <button class="btn" onclick="insertText('Tab. Sennae')">Tab. Sennae</button>
 <button class="btn" onclick="insertText('Tab. Bisacodyli')">Tab. Bisacodyli</button>
+<button class="btn" onclick="insertText('Tab. Metoclopramidi')">Tab. Metoclopramidi</button>
+<button class="btn" onclick="insertText('Sol. Microlax')">Sol. Microlax</button>
+<span class="between-category">КВС</span>
 <button class="btn" onclick="insertText('Tab. Nitrendipini')">Tab. Nitrendipini</button>
 <button class="btn" onclick="insertText('Tab. Captoprili')">Tab. Captoprili</button>
 <button class="btn" onclick="insertText('Tab. Perindoprili')">Tab. Perindoprili</button>
@@ -186,8 +196,12 @@
 <button class="btn" onclick="insertText('Tab. Propranololi')">Tab. Propranololi</button>
 <button class="btn" onclick="insertText('Tab. Atorvastatini')">Tab. Atorvastatini</button>
 <button class="btn" onclick="insertText('Tab. Rivaroxabani')">Tab. Rivaroxabani</button>
+<span class="between-category">Прочее</span>
 <button class="btn" onclick="insertText('Tab. Tavegyli')">Tab. Tavegyli</button>
 <button class="btn" onclick="insertText('Tab. Metformini')">Tab. Metformini</button>
+<button class="btn" onclick="insertText('Tab. Ferretab')">Tab. Ferretab</button>
+<button class="btn" onclick="insertText('Tab. Vigantol')">Tab. Vigantol</button>
+<button class="btn" onclick="insertText('Tab. PK-Merz')">Tab. PK-Merz</button>
 </div>
 <h3>Системы</h3>
 <div class="med-buttons">
@@ -204,26 +218,34 @@
 <div class="med-buttons">
 <h3>Депо</h3>
 <div class="med-buttons">
-<button class="btn" onclick="insertText('Sol. Cisordinoli decanoatis 200 mg 1 amp. i/m')">Sol. Cisordinoli decanoatis 200 mg 1 amp. i/m</button>
-<button class="btn" onclick="insertText('Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m')">Sol. Fluphenazini decanoatis 25 mg/ml 1 amp. i/m</button>
-<button class="btn" onclick="insertText('Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m')">Sol. Haloperidoli decanoatis 50 mg/ml 1 amp. i/m</button>
-<button class="btn" onclick="insertText('Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m')">Sol. Fluanxol Depot 20 mg/ml 1 amp. i/m</button>
+<button class="btn" onclick="insertText('Sol. Cisordinoli decanoatis 200 mg i/m')">Sol. Cisordinoli decanoatis 200 mg i/m</button>
+<button class="btn" onclick="insertText('Sol. Fluphenazini decanoatis 25 mg i/m')">Sol. Fluphenazini decanoatis 25 mg i/m</button>
+<button class="btn" onclick="insertText('Sol. Haloperidoli decanoatis 50 mg i/m')">Sol. Haloperidoli decanoatis 50 mg i/m</button>
+<button class="btn" onclick="insertText('Sol. Fluanxol Depot 20 mg i/m')">Sol. Fluanxol Depot 20 mg i/m</button>
 <button class="btn" onclick="insertTextMg('reizi 2 ned')">reizi 2 ned</button>
 <button class="btn" onclick="insertTextMg('reizi 3 ned')">reizi 3 ned</button>
 <button class="btn" onclick="insertTextMg('reizi 4 ned')">reizi 4 ned</button>
 </div>
 <h3>Для плегирования</h3>
 <div class="med-buttons">
-<button class="btn" onclick="insertText('Ievadīt Sol. Cisordinol acutard 50 mg 1 ml i/m')">Ievadīt Sol. Cisordinol acutard 50 mg 1 ml i/m</button>
-<button class="btn" onclick="insertText('Ievadīt Sol. Cisordinol acutard 100 mg 2 ml i/m')">Ievadīt Sol. Cisordinol acutard 100 mg 2 ml i/m</button>
-<button class="btn" onclick="insertText('Ievadīt Sol. Chlorpromazini 50 mg 2 ml i/m')">Ievadīt Sol. Chlorpromazini 50 mg 2 ml i/m</button>
-<button class="btn" onclick="insertText('Ievadīt Sol. Chlorpromazini 100 mg 4 ml i/m')">Ievadīt Sol. Chlorpromazini 100 mg 4 ml i/m</button>
+<button class="btn" onclick="insertText('Sol. Cisordinol acutard 50 mg 1 ml i/m')">Sol. Cisordinol acutard 50 mg 1 ml i/m</button>
+<button class="btn" onclick="insertText('Sol. Cisordinol acutard 100 mg 2 ml i/m')">Sol. Cisordinol acutard 100 mg 2 ml i/m</button>
+<button class="btn" onclick="insertText('Sol. Chlorpromazini 50 mg 2 ml i/m')">Sol. Chlorpromazini 50 mg 2 ml i/m</button>
+<button class="btn" onclick="insertText('Sol. Chlorpromazini 100 mg 4 ml i/m')">Sol. Chlorpromazini 100 mg 4 ml i/m</button>
 </div>
 <h3>Для памяти</h3>
 <div class="med-buttons">
 <button class="btn" onclick="insertText('Tab. Cavintoni')">Tab. Cavintoni</button>
 <button class="btn" onclick="insertText('Tab. Memantini')">Tab. Memantini</button>
 <button class="btn" onclick="insertText('Tab. Piracetami')">Tab. Piracetami</button>
+<button class="btn" onclick="insertText('Tab. Ipidacrini')">Tab. Ipidacrini</button>
+</div>
+<h3>Шорт-каты</h3>
+<div class="med-buttons">
+<button class="btn" onclick="insertText('Sol. Haloperidoli 0,5% 1 ml ×3, Tab. Cyclodoli 2 mg ×3')">Sol. Haloperidoli 0,5% 1 ml ×3, Tab. Cyclodoli 2 mg ×3</button>
+<button class="btn" onclick="insertText('Sol. Haloperidoli R, D → Tab. Haloperidoli 5 mg R, D')">Sol. Haloperidoli R, D → Tab. Haloperidoli 5 mg R, D</button>
+<button class="btn" onclick="insertText('Sol. Haloperidoli N → Tab. Haloperidoli 5 mg N')">Sol. Haloperidoli N → Tab. Haloperidoli 5 mg N</button>
+<button class="btn" onclick="insertText('pa ½ tab rītā 6-8 dienas → pa 1 tab rītā')">pa ½ tab rītā 6-8 dienas → pa 1 tab rītā</button>
 </div>
 <h3>Дозы</h3>
 <div class="med-buttons">
@@ -386,6 +408,6 @@
       output.value = current ? current + ' ' + text : text;
     }
   </script>
-<h4>05.04.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
+<h4>31.05.2026 © Psihiatrs Anžejs Dmuhovskis 86770063374</h4>
 </body>
 </html>
